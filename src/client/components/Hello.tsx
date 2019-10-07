@@ -5,5 +5,5 @@ export interface HelloProps {
 }
 
 export const Hello = (props: HelloProps) => (
-    <h1>Hello BRO!: {props.compiler}</h1>
+    <h1>Hello BRO!: {props.compiler} should be reloaded by webpack</h1>
 );
