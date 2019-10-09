@@ -5,24 +5,35 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-client": "npx webpack --config webpack.client.config.js",
-    "build-server": "npx webpack --config webpack.server.config.js",
+    "build-client": "webpack --config webpack.client.config.js",
+    "build-server": "webpack --config webpack.server.config.js",
     "dev": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\""
   },
   "author": "Egor Blagov",
   "license": "ISC",
   "devDependencies": {
+    "@babel/core": "^7.6.2",
+    "@babel/preset-react": "^7.6.3",
+    "@babel/preset-typescript": "^7.6.0",
+    "@babel/runtime": "^7.6.2",
     "@types/express": "^4.17.1",
     "@types/express-session": "^1.15.14",
     "@types/lodash": "^4.14.141",
     "@types/node": "^12.7.11",
     "@types/react": "^16.9.5",
+    "@types/react-copy-to-clipboard": "^4.3.0",
     "@types/react-dom": "^16.9.1",
+    "babel-loader": "^8.0.6",
     "concurrently": "^5.0.0",
+    "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
+    "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "http": "0.0.0",
+    "https": "^1.0.0",
     "nodemon": "^1.19.3",
     "source-map-loader": "^0.2.4",
+    "style-loader": "^1.0.0",
     "ts-loader": "^6.2.0",
     "typescript": "^3.6.3",
     "webpack": "^4.41.0",
@@ -30,10 +41,14 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@vkontakte/icons": "^1.10.0",
+    "@vkontakte/vk-connect": "^1.6.5",
+    "@vkontakte/vkui": "^2.31.0",
     "express": "^4.17.1",
     "express-session": "^1.16.2",
     "lodash": "^4.17.15",
     "react": "^16.10.2",
+    "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.10.2"
   }
 }

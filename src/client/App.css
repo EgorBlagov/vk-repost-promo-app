@@ -1,0 +1,7 @@
+.Error {
+    color: var(--dynamic_red);
+}
+
+.Success {
+    color: var(--dynamic_green);
+}

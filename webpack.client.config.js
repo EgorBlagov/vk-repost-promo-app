@@ -15,6 +15,7 @@ module.exports = {
     plugins: [
       new HtmlWebpackPlugin({
         title: 'Output Management',
+        template: './src/client/index.html'
       }),
     ],
 
@@ -25,14 +26,22 @@ module.exports = {
                 exclude: /node_modules/,
                 use: [
                     {
-                        loader: 'ts-loader'
+                        loader: 'babel-loader'
                     }
                 ]
             },
             {
-                enforce: 'pre',
                 test: /\.js$/,
+                enforce: 'pre',
                 loader: 'source-map-loader'
+            },
+            {
+                test: /\.html$/,
+                loader: 'html-loader',
+            },
+            {
+                test:/\.css$/,
+                use:['style-loader','css-loader']
             }
         ]
     }
