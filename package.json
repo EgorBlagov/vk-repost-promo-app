@@ -5,9 +5,15 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build-client": "webpack --config webpack.client.config.js",
-    "build-server": "webpack --config webpack.server.config.js",
-    "dev": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\""
+    "build:client": "webpack --config webpack.client.config.js",
+    "build:server": "webpack --config webpack.server.config.js",
+    "build": "npm run build:client && npm run build:server",
+    "start": "cd build && node app.js",
+    "dev:client": "webpack-dev-server --https --config webpack.client.config.js --port 15352 --hot --host 0.0.0.0 --mode development",
+    "dev:mobile": "webpack-dev-server --config webpack.client.config.js --port 15353 --hot --host 0.0.0.0 --mode development",
+    "dev:server": "concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
+    "dev": "concurrently --names \"BACK,CLIENT\" -c \"bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\""
   },
   "author": "Egor Blagov",
   "license": "ISC",
@@ -38,6 +44,7 @@
     "typescript": "^3.6.3",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.2",
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
@@ -50,5 +57,6 @@
     "react": "^16.10.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.10.2"
-  }
+  },
+  "proxy": "http://localhost:5000"
 }

@@ -44,5 +44,13 @@ module.exports = {
                 use:['style-loader','css-loader']
             }
         ]
+    },
+    watchOptions: {
+        poll: 1000
+    },
+    devServer: {
+        proxy: {
+            '/api': 'http://localhost:5000'
+        }
     }
 }

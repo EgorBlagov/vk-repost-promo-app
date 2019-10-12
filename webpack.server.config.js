@@ -1,5 +1,6 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
+const webpack = require('webpack');
 
 module.exports = {
     mode: 'production',
@@ -33,5 +34,11 @@ module.exports = {
     },
     externals: [
         nodeExternals()
+    ],
+    watchOptions: {
+        poll: 1000
+    },
+    plugins: [
+        new webpack.EnvironmentPlugin(['PORT', 'VK_KEY'])
     ]
 }
