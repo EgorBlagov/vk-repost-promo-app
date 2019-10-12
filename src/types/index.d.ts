@@ -1,4 +1,3 @@
-
 declare module '@vkontakte/vkui/dist/components/Panel/Panel' {
     import * as React from 'react';
 
@@ -12,17 +11,29 @@ declare module '@vkontakte/vkui/dist/components/Panel/Panel' {
 declare module '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader' {
     import * as React from 'react';
     export interface PanelHeaderProps {
-
+        right?: React.ReactNode;
+        left?: React.ReactNode;
     }
 
     export default class PanelHeader extends React.Component<PanelHeaderProps, any>{}
+}
+declare module '@vkontakte/vkui/dist/components/HeaderContext/HeaderContext' {
+    import * as React from 'react';
+    export interface HeaderContextProps {
+        opened: boolean;
+        onClosed: ()=>void;
+    }
+
+    export default class HeaderContext extends React.Component<HeaderContextProps, any>{}
 }
 
 declare module '@vkontakte/vkui/dist/components/Group/Group' {
     import * as React from 'react';
     export interface GroupProps {
-        title: string;
+        title?: string;
         description?: string;
+        before?: React.ReactNode;
+        size?: string;
     }
     export default class Group extends React.Component<GroupProps, any>{}
 }
@@ -38,9 +49,35 @@ declare module '@vkontakte/icons/dist/16/clear' {
 declare module '@vkontakte/icons/dist/16/check_circle' {
     import * as React from 'react';
     export interface Icon16CheckCircleProps {
-        className: string;
+        className?: string;
     }
     export default class Icon16CheckCircle extends React.Component<Icon16CheckCircleProps, any>{}
+}
+
+declare module '@vkontakte/icons/dist/28/chevron_back' {
+    import * as React from 'react';
+
+    export interface Icon28ChervonBackProps {
+        className?: string;
+    }
+    export default class Icon28ChervonBack extends React.Component<Icon28ChervonBackProps, any>{}
+}
+
+declare module '@vkontakte/icons/dist/28/settings' {
+    import * as React from 'react';
+    export interface Icon28SettingsProps {
+        className?: string;
+    }
+    export default class Icon28Settings extends React.Component<Icon28SettingsProps, any>{}
+}
+
+declare module '@vkontakte/icons/dist/24/back' {
+    import * as React from 'react';
+
+    export interface Icon24BackProps {
+        className?: string;
+    }
+    export default class Icon24Back extends React.Component<Icon24BackProps, any>{}
 }
 
 declare module '@vkontakte/vkui/dist/components/List/List' {
@@ -67,4 +104,15 @@ declare module '@vkontakte/vkui/dist/components/PullToRefresh/PullToRefresh' {
         isFetching: boolean;
     }
     export default class PullToRefresh extends React.Component<PullToRefreshProps, any>{}
+}
+
+declare module '@vkontakte/vkui/dist/components/PanelHeaderContent/PanelHeaderContent' {
+    import * as React from 'react';
+    export interface PanelHeaderContentProps {
+        status?: string;
+        aside?: any;
+        before?: any;
+        onClick: ()=>void;
+    }
+    export default class PanelHeaderContent extends React.Component<PanelHeaderContentProps, any>{}
 }
