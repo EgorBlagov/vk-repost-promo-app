@@ -5,3 +5,18 @@
 .Success {
     color: var(--dynamic_green);
 }
+
+.Middle {
+    margin: auto;
+    width: 50%;
+}
+
+.Promo {
+    margin: auto;
+    padding: 1px;
+    width: 50%;
+    text-align: center;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 2px;
+}

@@ -12,6 +12,7 @@ class Api extends EventEmitter {
     userInfo?: any;
     url: string;
     _postId: number;
+    groupInfos: Map<number, any>;
 
     constructor() {
         super();
@@ -20,6 +21,7 @@ class Api extends EventEmitter {
         this.groupId = 173966070;
         this.userInfo = null;
         this.url = 'https://vk.com/wall-173966070_18';
+        this.groupInfos = new Map();
         this._postId = 18;
         connect.subscribe((e) => this.handleEvent(e));
     }
@@ -31,7 +33,8 @@ class Api extends EventEmitter {
     get commonParams() {
         return {
             v: '5.101',
-            access_token: this.accessToken
+            access_token: this.accessToken,
+            request_id: this.generate_id()
         }
     }
 
@@ -40,11 +43,15 @@ class Api extends EventEmitter {
         this.emit('event', type, data);
     }
 
-    async errorDecorator<K>(promise: Promise<K>, errorMessage: string) {
+    private generate_id(): string {
+        return Math.random().toString(36).substr(2,15);
+    }
+
+    async errorDecorator<K>(promise: Promise<K>, errorMessage: string, critical: boolean = false) {
         try {
             return await promise;
         } catch (err) {
-            this.emit('error', errorMessage);
+            this.emit('error', {error: errorMessage, critical});
             return null;
         }
     }
@@ -66,7 +73,7 @@ class Api extends EventEmitter {
             try{
                 await this.obtainToken()
             } catch (err) {
-                this.emit('error', err);
+                this.emit('error', {error: 'Не удалось получить доступ', critical: true});
             }
             this.inited = true;
         }
@@ -88,7 +95,6 @@ class Api extends EventEmitter {
             {
                 method: 'groups.isMember',
                 params: {
-                    request_id: 'memberId129',
                     user_id: userInfo.id,
                     group_id: this.groupId,
                     ...this.commonParams
@@ -98,30 +104,50 @@ class Api extends EventEmitter {
         return response.response === 1;
     }
 
-    async isRepost() {
-        /*
+    async getOwnedGroups() {
         const userInfo = await this.getUserInfo();
-        const response = await this.invokeOnceReady("VKWebAppCallAPIMethod",
-            {
-                method: 'wall.getReposts',
-                params: {
-                    request_id: 'getRepostsId23098',
-                    owner_id: -this.groupId,
-                    post_id: this._postId,
-                    ...this.commonParams
-                }
+        const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
+        {
+            method: 'groups.get',
+            params: {
+                user_id: userInfo.id,
+                count: 20,
+                filter: 'admin',
+                ...this.commonParams
             }
-        );
-        const res = _(response.response.profiles).map(x=>x.id).includes(userInfo.id);
-        return res;
-        */
+        });
 
+        return response.response.items;
+    }
+
+    async getGroupInfo(ownedGroups: number[]) {
+        const notPolled = _.filter(ownedGroups, x => !this.groupInfos.has(x));
+
+        if (!_.isEmpty(notPolled)) {
+            const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
+                {
+                    method: 'groups.getById',
+                    params: {
+                        group_ids: notPolled.join(','),
+                        ...this.commonParams
+                    }
+                }
+            );
+            
+            _.each(response.response, gr => {
+                this.groupInfos.set(gr.id, gr);
+            });
+        }
+        
+        return _.map(ownedGroups, gr_id => this.groupInfos.get(gr_id));
+    }
+
+    async isRepost() {
         const userInfo = await this.getUserInfo();
         const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
         {
             method: 'wall.get',
             params: {
-                request_id: 'getRepostsId23098',
                 owner_id: userInfo.id,
                 count: 20,
                 ...this.commonParams
@@ -137,44 +163,16 @@ class Api extends EventEmitter {
 
         return reposted;
     }
+
+    async getLaunchInfo() {
+        try {
+            const response = await fetch('/api/launch_info');
+            const json = await response.json();
+            return json;
+        } catch (err) {
+            this.emit('error', {error: 'Не удалось проверить параметры запуска', critical: true});
+        }
+    }
 }
-
-//     async Repost() {
-//         const apiCall = async() => {
-//             console.log('reposting');
-//             try {
-//             const response = await this.invokeOnceReady("VKWebAppCallAPIMethod",
-//                 // {
-//                 //     method: 'wall.repost',
-//                 //     params: {
-//                 //         request_id: 'repostId2834',
-//                 //         object: 'wall-173966070_18',
-//                 //         ...this.commonParams
-//                 //     }
-//                 // }
-//                 {
-//                     method: 'wall.post',
-//                     params: {
-//                         request_id: 'repostId2834',
-//                         owner_id: (await this.getUserInfo()).id,
-//                         message: 'test',
-//                         ...this.commonParams
-//                     }
-//                 }
-//             );
-//             console.log(response);
-//             } catch (err) {
-//                 console.log(err);
-//             }
-//         }
-
-//         return await this.errorDecorator(
-//             apiCall(),
-//             'Не удалось поделиться записью'
-//         );
-//     }
-// }
-
-
 const api = new Api();
 export default api

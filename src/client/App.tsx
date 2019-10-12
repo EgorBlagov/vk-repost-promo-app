@@ -1,4 +1,5 @@
 import * as React from 'react';
+import * as _ from 'lodash';
 
 import { useState, useEffect } from 'react';
 import View from '@vkontakte/vkui/dist/components/View/View';
@@ -12,20 +13,29 @@ import Div from '@vkontakte/vkui/dist/components/Div/Div';
 import Icon16Clear from '@vkontakte/icons/dist/16/clear';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
-import Repost from './components/Repost';
+import Home from './components/Home';
+import Configuration from './components/Configuration';
 import api from './api';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import './App.css';
 
 export const App = () => {
-	const [activePanel, setActivePanel] = useState('repost');
+	const [activePanel, setActivePanel] = useState('home');
 	const [fetchedUser, setUser] = useState(null);
 	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
+	const [fetching, setFetching] = useState(true);
 	const [fetchedMember, setIsMember] = useState(null);
 	const [fetchedRepost, setIsRepost] = useState(null);
 	const [snackbar, setSnackbar] = useState(null);
-	const [fetching, setFetching] = useState(true);
+	const [ownedGroups, setOwnedGroups] = useState([]);
+	const [editedGroup, setEditedGroup] = useState(undefined);
+	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState(undefined);
+
+	const init = async () => {
+		const launchInfo = await api.getLaunchInfo();
+		setFetchedLaunchInfo(launchInfo);
+	}
 
 	const onRefresh = async () => {
 		setFetching(true);
@@ -35,6 +45,8 @@ export const App = () => {
 		setIsMember(isMember);
 		const isRepost = await api.isRepost();
 		setIsRepost(isRepost);
+		const ownedGroups = await api.getOwnedGroups();
+		setOwnedGroups(ownedGroups);
 		setPopout(null);
 		setFetching(false);
 	}
@@ -58,8 +70,8 @@ export const App = () => {
 	}
 
 	
-	const errorHandler = (errorReason: string) => {
-		showSnackbar(true, `Ошибка: ${errorReason}`);
+	const errorHandler = ({error, critical}: {error: string, critical: boolean}) => {
+		showSnackbar(true, `Ошибка: ${error}`);
 	}
 
 	const listener = (type: string, data: any) => {
@@ -80,7 +92,7 @@ export const App = () => {
 		api.addListener('event', listener);
 		api.addListener('error', errorHandler);
 		window.onfocus = onRefresh;
-		onRefresh();
+		init().then(() => onRefresh());
 		return () => {
 			api.removeListener('event', listener);
 			api.removeListener('error', errorHandler);
@@ -95,16 +107,26 @@ export const App = () => {
 
 	return (
 		<View activePanel={activePanel} popout={popout}>
-			<Repost
-				id='repost'
+			<Home
+				id='home'
 				go={go}
 				isMember={fetchedMember}
 				isReposted={fetchedRepost}
-				snackbar={snackbar}
 				fetching={fetching}
 				onRefresh={onRefresh}
 				notify={(m)=>showSnackbar(false, m)}
-			/>
+				isOwner={!_.isEmpty(ownedGroups)}
+				launchInfo={fetchedLaunchInfo}
+			>
+				{snackbar}
+			</Home>
+			<Configuration
+				id='config'
+				go={go}
+				launchInfo={fetchedLaunchInfo}
+			>
+				{snackbar}
+			</Configuration>
 		</View>
 	);
 }
