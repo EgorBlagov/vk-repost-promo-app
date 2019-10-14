@@ -24,23 +24,25 @@ import * as CopyToClipboard from 'react-copy-to-clipboard';
 
 import api from '../api';
 import Repost from './Repost';
+import { Panels } from '../navigation';
+import { LaunchParams } from '../../common/api';
 
 export interface HomeProps {
-	id: string;
-	go: (to:string)=>void;
+	id: Panels;
+	go: (to:Panels)=>void;
 	isMember: boolean;
 	isReposted: boolean;
 	onRefresh: ()=>void;
 	fetching: boolean;
 	notify: (x:string)=>void;
-	isOwner: boolean;
 	children: any;
-	launchInfo: any;
+	launchInfo: LaunchParams;
 }
 
-const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetching, notify, isOwner, children}: HomeProps) => {
+const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetching, notify, children}: HomeProps) => {
+	const left = launchInfo.is_admin? <HeaderButton onClick={()=>go(Panels.Configure)} style={{marginLeft: '6px'}}>{<Icon28Settings/>}</HeaderButton> : null;
 	return <Panel id={id}>
-		<PanelHeader>Бонус</PanelHeader>
+		<PanelHeader left={left}>Бонус</PanelHeader>
 		{launchInfo && launchInfo.group_id && <Repost
 			fetching={fetching}
 			onRefresh={onRefresh}
@@ -49,11 +51,6 @@ const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetching, n
 			notify={notify}
 			promo='PROMO-TEST'
 		/>}
-		{isOwner && 
-			<CellButton onClick={ () => go("config") }>
-				Настройки в сообществе...
-			</CellButton>
-		}
 		{children}
 	</Panel>;
 }

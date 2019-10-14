@@ -3,6 +3,7 @@ import * as EventEmitter from 'events';
 
 import connect from '@vkontakte/vk-connect';
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
+import { apiCall, ApiMethods } from '../common/api';
 
 
 class Api extends EventEmitter {
@@ -166,12 +167,17 @@ class Api extends EventEmitter {
 
     async getLaunchInfo() {
         try {
-            const response = await fetch('/api/launch_info');
-            const json = await response.json();
-            return json;
+            return await apiCall(ApiMethods.GetLaunchParams);
         } catch (err) {
             this.emit('error', {error: 'Не удалось проверить параметры запуска', critical: true});
         }
+    }
+
+    async install() {
+        return await this.errorDecorator(
+            connect.sendPromise('VKWebAppAddToCommunity'),
+            'Не удалось установить сервис'
+        )
     }
 }
 const api = new Api();

@@ -19,26 +19,42 @@ import api from './api';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import './App.css';
+import { Brief } from './components/Brief';
+import { LaunchParams } from '../common/api';
+import { Panels } from './navigation';
 
 export const App = () => {
-	const [activePanel, setActivePanel] = useState('home');
+	const [activePanel, setActivePanel] = useState<Panels>(Panels.Brief);
 	const [fetchedUser, setUser] = useState(null);
-	const [popout, setPopout] = useState(<ScreenSpinner size='large' />);
-	const [fetching, setFetching] = useState(true);
-	const [fetchedMember, setIsMember] = useState(null);
-	const [fetchedRepost, setIsRepost] = useState(null);
-	const [snackbar, setSnackbar] = useState(null);
-	const [ownedGroups, setOwnedGroups] = useState([]);
-	const [editedGroup, setEditedGroup] = useState(undefined);
-	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState(undefined);
+	const [popout, setPopout] = useState<React.ReactNode>(<ScreenSpinner size='large' />);
+	const [fetching, setFetching] = useState<boolean>(true);
+	const [fetchedMember, setIsMember] = useState<boolean>(null);
+	const [fetchedRepost, setIsRepost] = useState<boolean>(null);
+	const [snackbar, setSnackbar] = useState<React.ReactNode>(null);
+	const [ownedGroups, setOwnedGroups] = useState<number[]>([]);
+	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState<LaunchParams>(undefined);
 
 	const init = async () => {
 		const launchInfo = await api.getLaunchInfo();
 		setFetchedLaunchInfo(launchInfo);
+		if (launchInfo.group_id !== undefined) {
+			window.onfocus = onRefresh;
+			setActivePanel(Panels.Home);
+			await onRefresh();
+		} else {
+			setActivePanel(Panels.Brief);
+			setPopout(null);
+			setFetching(false);
+		}
+	}
+
+	const deinit = async () => {
+		window.onfocus = undefined;
 	}
 
 	const onRefresh = async () => {
 		setFetching(true);
+		
 		const user = await api.getUserInfo();
 		setUser(user);
 		const isMember = await api.isMember();
@@ -91,37 +107,40 @@ export const App = () => {
 	useEffect(() => {
 		api.addListener('event', listener);
 		api.addListener('error', errorHandler);
-		window.onfocus = onRefresh;
-		init().then(() => onRefresh());
+		init();
 		return () => {
 			api.removeListener('event', listener);
 			api.removeListener('error', errorHandler);
-			window.onfocus = null;
+			deinit();
 		};
 	// eslint-disable-next-line
 	}, []);
 
-	const go = (to: string) => {
+	const go = (to: Panels) => {
 		setActivePanel(to);
 	};
 
 	return (
 		<View activePanel={activePanel} popout={popout}>
+			<Brief
+				id={Panels.Brief}
+			>
+				{snackbar}
+			</Brief>
 			<Home
-				id='home'
+				id={Panels.Home}
 				go={go}
 				isMember={fetchedMember}
 				isReposted={fetchedRepost}
 				fetching={fetching}
 				onRefresh={onRefresh}
 				notify={(m)=>showSnackbar(false, m)}
-				isOwner={!_.isEmpty(ownedGroups)}
 				launchInfo={fetchedLaunchInfo}
 			>
 				{snackbar}
 			</Home>
 			<Configuration
-				id='config'
+				id={Panels.Configure}
 				go={go}
 				launchInfo={fetchedLaunchInfo}
 			>

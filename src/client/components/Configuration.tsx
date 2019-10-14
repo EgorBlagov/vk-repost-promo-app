@@ -26,12 +26,13 @@ import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenS
 
 import api from '../api';
 import EditGroup from './EditGroup';
+import { Panels } from '../navigation';
 
 const osname = platform();
 
 export interface ConfigurationProps {
-	id: string;
-    go: (to:string)=>void;
+	id: Panels;
+    go: (to:Panels)=>void;
     children: any;
     launchInfo: any;
 
@@ -56,7 +57,7 @@ const Configuration = ({ id, go, children, launchInfo }: ConfigurationProps) => 
 
 	return <Panel id={id}>
 		<PanelHeader
-            left={<HeaderButton onClick={()=>go('home')}>{osname === IOS ? <Icon28ChevronBack /> : <Icon24Back />}</HeaderButton>}
+            left={<HeaderButton onClick={()=>go(Panels.Home)}>{osname === IOS ? <Icon28ChevronBack /> : <Icon24Back />}</HeaderButton>}
         >Настройка</PanelHeader>
         {renderContent()}
         {children}

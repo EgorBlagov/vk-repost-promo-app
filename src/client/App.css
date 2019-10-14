@@ -20,3 +20,13 @@
     border-radius: 10px;
     border-width: 2px;
 }
+
+.centered-panel {
+    display: flex;
+    justify-content: space-around;
+}
+
+h2.centered-panel {
+    text-align: center;
+    line-height: 1.5em;
+}
