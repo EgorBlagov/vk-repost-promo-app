@@ -21,3 +21,8 @@ export async function apiCall<K extends ApiMethods=ApiMethods>(method: K , param
     return json;
 }
 
+export interface IGroupConfig {
+    promocode: string;
+    postId: number;
+    hoursToGet: number;
+}

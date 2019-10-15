@@ -1,5 +1,6 @@
 export enum Panels {
     Brief = 'brief',
     Home = 'home',
-    Configure = 'configure'
+    Configure = 'configure',
+    Empty = 'empty'
 }

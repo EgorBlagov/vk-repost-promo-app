@@ -24,7 +24,7 @@ import { LaunchParams } from '../common/api';
 import { Panels } from './navigation';
 
 export const App = () => {
-	const [activePanel, setActivePanel] = useState<Panels>(Panels.Brief);
+	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);
 	const [fetchedUser, setUser] = useState(null);
 	const [popout, setPopout] = useState<React.ReactNode>(<ScreenSpinner size='large' />);
 	const [fetching, setFetching] = useState<boolean>(true);
@@ -122,6 +122,7 @@ export const App = () => {
 
 	return (
 		<View activePanel={activePanel} popout={popout}>
+			<Panel id={Panels.Empty}/>
 			<Brief
 				id={Panels.Brief}
 			>
