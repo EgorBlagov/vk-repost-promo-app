@@ -9,9 +9,9 @@ declare module "sqlite3" {
 }
 
 export interface Storage {
-    async isConfigured: (groupId: number) => Promise<boolean>;
-    async getConfig: (groupId: number) => Promise<IGroupConfig>;
-    async setConfig: (groupId: number, config: IGroupConfig) => Promise<void>;
+    isConfigured: (groupId: number) => Promise<boolean>;
+    getConfig: (groupId: number) => Promise<IGroupConfig>;
+    setConfig: (groupId: number, config: IGroupConfig) => Promise<void>;
     init: () => void;
     cleanup: () => void;
 }
@@ -76,7 +76,7 @@ class Sqlite3Storage implements Storage {
                         if (err) {
                             reject(err.message);
                         } else {
-                            if (row !== undefined && _.includes(row, 'CNT') && row['CNT'] === 1) {
+                            if (row !== undefined && row.CNT === 1) {
                                 resolve(true);
                             } else {
                                 resolve(false);
@@ -88,8 +88,46 @@ class Sqlite3Storage implements Storage {
         });
     }
 
-    getConfig: (groupId: number) => Promise<IGroupConfig>;
-    setConfig: (groupId: number, config: IGroupConfig) => Promise<void>;    
+    public async getConfig(groupId: number): Promise<IGroupConfig> {
+        return await this.invokeOnDb<IGroupConfig>(async (db) => {
+            return await new Promise<IGroupConfig>((resolve, reject) => {
+                db.serialize(()=>{
+                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=${groupId}`, (err, row) => {
+                        if (err) {
+                            reject(err.message);
+                        } else {
+                            resolve({
+                                hoursToGet: row.HOURS,
+                                postId: row.POST_ID,
+                                promocode: row.PROMOCODE
+                            });
+                        }
+                    });
+                })
+            })
+        });
+    }
+
+    public async setConfig(groupId: number, config: IGroupConfig): Promise<void> {
+        return await this.invokeOnDb<void>(async (db) => {
+            return await new Promise<void>((resolve, reject) => {
+                db.serialize(()=>{
+                    db.run(`UPDATE GROUPS
+                        SET PROMOCODE = ${config.promocode},
+                            POST_ID = ${config.postId},
+                            HOURS = ${config.hoursToGet}
+                        WHERE
+                            WHERE GROUP_ID=${groupId}`, (err) => {
+                        if (err) {
+                            reject(err.message);
+                        } else {
+                            resolve();
+                        }
+                    });
+                })
+            })
+        });
+    }   
     
 
     private async invokeOnDb<T>(call: (db: sqlite.Database)=>Promise<T>): Promise<T> {
