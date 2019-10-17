@@ -1,6 +1,7 @@
 import * as sqlite from 'sqlite3';
 import * as _ from 'lodash';
 import { IGroupConfig } from '../common/api';
+import { rejects } from 'assert';
 
 declare module "sqlite3" {
     interface Database {
@@ -23,11 +24,12 @@ enum LogLevel {
 }
 
 
-class Sqlite3Storage implements Storage {
+export class Sqlite3Storage implements Storage {
     private db: sqlite.Database;
+    private dbFilename: string;
 
-    private get dbFilename () {
-        return './main.db';
+    constructor(name: string) {
+        this.dbFilename = `./${name}`;
     }
 
     private get connected() {
@@ -72,7 +74,7 @@ class Sqlite3Storage implements Storage {
         return await this.invokeOnDb<boolean>(async (db) => {
             return await new Promise<boolean>((resolve, reject) => {
                 db.serialize(()=>{
-                    db.get(`SELECT COUNT(1) AS CNT FROM GROUPS WHERE GROUP_ID=${groupId}`, (err, row) => {
+                    db.get(`SELECT COUNT(1) AS CNT FROM GROUPS WHERE GROUP_ID = ?`, [groupId], (err, row) => {
                         if (err) {
                             reject(err.message);
                         } else {
@@ -92,7 +94,7 @@ class Sqlite3Storage implements Storage {
         return await this.invokeOnDb<IGroupConfig>(async (db) => {
             return await new Promise<IGroupConfig>((resolve, reject) => {
                 db.serialize(()=>{
-                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=${groupId}`, (err, row) => {
+                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
                         if (err) {
                             reject(err.message);
                         } else {
@@ -109,24 +111,40 @@ class Sqlite3Storage implements Storage {
     }
 
     public async setConfig(groupId: number, config: IGroupConfig): Promise<void> {
-        return await this.invokeOnDb<void>(async (db) => {
-            return await new Promise<void>((resolve, reject) => {
-                db.serialize(()=>{
-                    db.run(`UPDATE GROUPS
-                        SET PROMOCODE = ${config.promocode},
-                            POST_ID = ${config.postId},
-                            HOURS = ${config.hoursToGet}
-                        WHERE
-                            WHERE GROUP_ID=${groupId}`, (err) => {
-                        if (err) {
-                            reject(err.message);
-                        } else {
-                            resolve();
-                        }
-                    });
+        const isConfigured: boolean = await this.isConfigured(groupId);
+        if (isConfigured) {
+            return await this.invokeOnDb<void>(async (db) => {
+                return await new Promise<void>((resolve, reject) => {
+                    db.serialize(()=>{
+                        db.run(`UPDATE GROUPS
+                            SET PROMOCODE = ?,
+                                POST_ID = ?,
+                                HOURS = ?
+                            WHERE GROUP_ID = ?`, [config.promocode, config.postId, config.hoursToGet, groupId], (err) => {
+                            if (err) {
+                                reject(err.message);
+                            } else {
+                                resolve();
+                            }
+                        });
+                    })
+                })
+            });
+        } else {
+            return await this.invokeOnDb<void>(async (db) => {
+                return await new Promise<void>((resolve, reject) => {
+                    db.serialize(()=>{
+                        db.run(`INSERT INTO GROUPS VALUES (?, ?, ?, ?)`, [groupId, config.promocode, config.postId, config.hoursToGet], (err) => {
+                            if (err) {
+                                reject(err.message);
+                            } else {
+                                resolve();   
+                            }
+                        })
+                    })
                 })
             })
-        });
+        }
     }   
     
 

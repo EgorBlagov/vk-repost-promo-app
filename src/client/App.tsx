@@ -144,6 +144,7 @@ export const App = () => {
 				id={Panels.Configure}
 				go={go}
 				launchInfo={fetchedLaunchInfo}
+				notify={(m, e) => showSnackbar(e, m)}
 			>
 				{snackbar}
 			</Configuration>

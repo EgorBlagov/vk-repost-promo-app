@@ -1,5 +1,5 @@
 export enum ApiMethods {
-    GetLaunchParams = 'launch_params'
+    GetLaunchParams = 'launch_params',
 }
 
 export interface LaunchParams {
@@ -25,4 +25,12 @@ export interface IGroupConfig {
     promocode: string;
     postId: number;
     hoursToGet: number;
+}
+
+export interface IGroupConfiguredResult {
+    isConfigured: boolean;
+}
+
+export interface IGroupConfigResult {
+    config: IGroupConfig;
 }

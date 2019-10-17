@@ -27,31 +27,72 @@ import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenS
 import api from '../api';
 import EditGroup from './EditGroup';
 import { Panels } from '../navigation';
+import { IGroupConfig, LaunchParams, IGroupConfiguredResult, IGroupConfigResult } from '../../common/api';
 
 const osname = platform();
 
 export interface ConfigurationProps {
 	id: Panels;
-    go: (to:Panels)=>void;
+    go: (to: Panels) => void;
     children: any;
-    launchInfo: any;
-
+    launchInfo: LaunchParams;
+    notify: (message: string, isError: boolean) => void;
 }
 
-const Configuration = ({ id, go, children, launchInfo }: ConfigurationProps) => {
-    const renderOpenFromGroup = () => {
-        return <Group title="Информация">
-            <Div>
-                Для настройки приложения установите его в свое сообщество и откройте из сообщества
-            </Div>
-        </Group>
+const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
+    const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
+    
+    const fetchConfigStatus = async () => {
+        const response = await fetch(`/api/groups/${launchInfo.group_id}/available`);
+        const groupAvailableStatus: IGroupConfiguredResult = await response.json();
+
+        if (groupAvailableStatus.isConfigured) {
+            const response = await fetch(`/api/groups/${launchInfo.group_id}`);
+            const json: IGroupConfigResult = await response.json();
+            setGroupConfig(json.config);
+        } else {
+            notify('Промокод в этой группе еще не настроен', true);
+            setGroupConfig({
+                hoursToGet: 0,
+                postId: 0,
+                promocode: 'введите промокод'
+            });
+        }
     }
 
+    const saveGroupParams = () => {
+        fetch(`/api/groups/${launchInfo.group_id}`, {
+            method: 'PUT',
+            body: JSON.stringify(groupConfig), // data can be `string` or {object}!
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            })
+        }).then((res) => {
+            if (res.status === 500) {
+                res.json().then(json => {
+                    notify(`Не удалось сохранить параметры: ${JSON.stringify(json.error)}`, true);
+                });
+            } else {
+                notify('Сохранено', false)}
+            }
+        ).catch(err => notify(`Не удалось сохранить параметры: ${err}`, true));
+    }
+
+    useEffect(() => {
+        fetchConfigStatus()
+            .catch(err => notify(`Не удалось получить статус: ${err}`, true));
+    }, []);
+
     const renderContent = () => {
-        if (!launchInfo.is_admin) {
-            return renderOpenFromGroup();
+        if (groupConfig === undefined) {
+            return <Spinner size="large"/>
         } else {
-            return <EditGroup/>
+            return (
+                <Group>
+                    <Div>{`промокод: ${groupConfig.promocode}`}</Div>
+                    <Button onClick={() => saveGroupParams()}>Сохранить</Button>
+                </Group>
+            );
         }
     }
 
