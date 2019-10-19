@@ -5,23 +5,12 @@ import { Storage, Sqlite3Storage } from './storage';
 
 export const router: express.Router = express.Router();
 
-function getUrl(m: ApiMethods) {
-    return `/${m}`;
-}
 
-type Responder<K extends ApiMethods=ApiMethods> = (response: ResponseMap[K]) => express.Response;
-function declareRoute<K extends ApiMethods=ApiMethods>(router: express.Router, method: K, body: (req:express.Request, res: express.Response, responder: Responder<K>) => void): void {
-    router.get(getUrl(method), (req, res) => {
-        const responder: Responder<K> = (resp) => res.send(resp);
-        body(req, res, responder);
+router.get('/launch_params', (req, res) => {
+    res.send({
+        groupId: req.session.params.vk_group_id,
+        isAdmin: req.session.params.vk_viewer_group_role === 'admin'
     })
-}
-
-declareRoute(router, ApiMethods.GetLaunchParams, (req, res, responder) => {
-    responder({
-            groupId: req.session.params.vk_group_id,
-            isAdmin: req.session.params.vk_viewer_group_role === 'admin'
-    });
 })
 
 const storage: Storage = new Sqlite3Storage('main.db');

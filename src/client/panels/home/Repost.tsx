@@ -5,17 +5,19 @@ import { Icon16Clear, Icon16CheckCircle } from '../../icons';
 
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { api } from '../../logic/api';
+import { wallProcessor } from '../../logic/wall-processor';
 
 export interface RepostProps {
     onRefresh: () => void;
     fetching: boolean;
     isMember: boolean;
     isReposted: boolean;
+    groupId: number;
     promo: string;
     notify: (x:string) => void;
 }
 
-export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo}: RepostProps) => {
+export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, groupId, promo}: RepostProps) => {
     const renderPromocode = () => {
 		if (isMember && isReposted) {
 			const aside = <CopyToClipboard text={promo}>
@@ -56,7 +58,7 @@ export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo
             asideContent={aside}
 			multiline
         >
-            Подписаться на <Link href={api.groupUrl} target="_blank">наше</Link> сообщество
+            Подписаться на <Link href={wallProcessor.getGroupUrl(groupId)} target="_blank">наше</Link> сообщество
         </Cell> 
 	};
 	

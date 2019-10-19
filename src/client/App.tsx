@@ -93,7 +93,9 @@ export const App = () => {
 	return (
 		<View activePanel={activePanel} popout={popout}>
 			<Panel id={Panels.Empty}/>
-			<Brief id={Panels.Brief}>
+			<Brief id={Panels.Brief}
+				notify={(m, e) => showSnackbar(e, m)}
+			>
 				{snackbar}
 			</Brief>
 			<Home

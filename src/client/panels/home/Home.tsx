@@ -29,6 +29,7 @@ export const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetc
 			isMember={isMember}
 			isReposted={isReposted}
 			notify={notify}
+			groupId={launchInfo.groupId}
 			promo='PROMO-TEST'
 		/>}
 		{children}

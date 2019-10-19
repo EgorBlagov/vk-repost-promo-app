@@ -13,7 +13,11 @@ export function toMsg(err: any): string {
     if (typeof err === 'string') {
         return err;
     }
-
+    
+    if (err.error_data !== undefined && err.error_data.error_reason !== undefined && err.error_data.error_reason.error_msg !== undefined) {
+        return err.error_data.error_reason.error_msg;
+    }
+    
     return JSON.stringify(err);
 }
 
