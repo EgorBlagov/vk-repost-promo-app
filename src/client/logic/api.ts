@@ -3,7 +3,7 @@ import * as EventEmitter from 'events';
 
 import connect from '@vkontakte/vk-connect';
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult } from '../../common/api';
+import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, IError } from '../../common/api';
 
 
 class Api extends EventEmitter {
@@ -184,13 +184,13 @@ class Api extends EventEmitter {
         }
     }
 
-    async isGroupConfigured(groupId: number): Promise<IGroupConfiguredResult> {
+    async isGroupConfigured(groupId: number): Promise<boolean> {
         const response = await fetch(`/api/groups/${groupId}/available`);
-        const json = await response.json();
+        const json: IGroupConfiguredResult & IError = await response.json();
         if (response.status === 500) {
             throw Error(`Не удалось получить статус конфигурации: ${json.error}`);
         }
-        return json;
+        return json.isConfigured
     }
 
     async getGroupConfig(groupId: number): Promise<IGroupConfig> {

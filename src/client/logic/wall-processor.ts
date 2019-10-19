@@ -1,5 +1,5 @@
-export namespace WallProcessor {
-    export function getExamplePostUrls(groupId: number): string[] {
+class WallProcessor {
+    public getExamplePostUrls(groupId: number): string[] {
         return [
             `https://vk.com/wall-${groupId}_1234`,
             `wall-${groupId}_1234`,
@@ -7,23 +7,23 @@ export namespace WallProcessor {
         ];
     }
 
-    export function generatePostUrl(groupId: number, postId: number): string {
+    public generatePostUrl(groupId: number, postId: number): string {
         return `https://vk.com/wall-${groupId}_${postId}`;
     }
 
-    export function normalizePostUrl(groupId: number, url: string): string {
-        if (isPostUrlValid(groupId, url)) {
-            return generatePostUrl(groupId, extractPostId(url));
+    public normalizePostUrl(groupId: number, url: string): string {
+        if (this.isPostUrlValid(groupId, url)) {
+            return this.generatePostUrl(groupId, this.extractPostId(url));
         } else {
             return url;
         }
     }
 
-    export function extractPostId(url: string): number {
+    public extractPostId(url: string): number {
         return parseInt(url.match(/wall-\d+_(\d+)$/)[1])
     }
 
-    export function isPostUrlValid(groupId: number, url: string): boolean {
+    public isPostUrlValid(groupId: number, url: string): boolean {
         if (url === undefined) {
             return false;
         }
@@ -36,3 +36,5 @@ export namespace WallProcessor {
         return true;
     }
 }
+
+export const wallProcessor: WallProcessor = new WallProcessor();

@@ -147,8 +147,7 @@ export class Sqlite3Storage implements Storage {
         }
     }   
     
-
-    private async invokeOnDb<T>(call: (db: sqlite.Database)=>Promise<T>): Promise<T> {
+    private async invokeOnDb<T>(call: (db: sqlite.Database) => Promise<T>): Promise<T> {
         if (!this.connected) {
             throw new Error('Database is not connected');
         }

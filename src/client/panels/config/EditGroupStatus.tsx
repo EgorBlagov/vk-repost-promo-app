@@ -15,7 +15,7 @@ export const EditGroupStatus = ({groupId, isPostUrlValid, isPromocodeValid }: Ed
         if (!isPromocodeValid) {
             return 'Промокод не должен быть пустым';
         } else if (!isPostUrlValid) {
-            return `Неправильный URL поста, поддерживаемые форматы: ${WallProcessor.getExamplePostUrls(groupId).join(', ')}`;
+            return `Неправильный URL поста, поддерживаемые форматы: ${wallProcessor.getExamplePostUrls(groupId).join(', ')}`;
         }
 
         return '';

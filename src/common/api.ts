@@ -34,3 +34,7 @@ export interface IGroupConfiguredResult {
 export interface IGroupConfigResult {
     config: IGroupConfig;
 }
+
+export interface IError {
+    error: string;
+}

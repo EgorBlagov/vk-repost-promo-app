@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 
-import { IGroupConfig, LaunchParams, IGroupConfiguredResult } from '../../../common/api';
+import { IGroupConfig, LaunchParams } from '../../../common/api';
 import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
 import { toMsg } from '../../logic/errors';
@@ -25,9 +25,9 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const fetchConfigStatus = async () => {
-        const groupAvailableStatus: IGroupConfiguredResult = await api.isGroupConfigured(launchInfo.groupId);
+        const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
 
-        if (groupAvailableStatus.isConfigured) {
+        if (isGroupConfigured) {
             const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
             setGroupConfig(cfg);
         } else {
@@ -65,7 +65,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
 
 	return <Panel id={id}>
 		<PanelHeader
-            left={<HeaderButton onClick={()=>go(Panels.Home)}>{<CrossPlatformBack/>}</HeaderButton>}
+            left={<HeaderButton onClick={() => go(Panels.Home)}>{<CrossPlatformBack/>}</HeaderButton>}
         >Настройка</PanelHeader>
         <Group>
             <EditGroup 

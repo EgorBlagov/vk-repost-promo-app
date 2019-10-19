@@ -5,15 +5,16 @@ import { useState, useEffect } from 'react';
 import { Button, FormLayout, Input, Div, Spinner, Slider, Link } from '@vkontakte/vkui';
 
 import { IGroupConfig } from '../../../common/api';
+import { wallProcessor } from '../../logic/wall-processor';
+
 import { EditGroupStatus } from './EditGroupStatus';
-import { WallProcessor } from '../../logic/wall-processor';
 
 export interface EditGroupProps {
     groupId: number,
     config: IGroupConfig;
     saving: boolean;
-    saveGroupParams: (newCfg: IGroupConfig)=>void;
-    reset: ()=>void;
+    saveGroupParams: (newCfg: IGroupConfig) => void;
+    reset: () => void;
 }
 
 export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupProps) => {
@@ -25,7 +26,7 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
         if (config !== undefined) {
             // TODO: attention here, maybe can cause rewritings
             setPromocode(config.promocode);
-            setPostUrl(WallProcessor.generatePostUrl(groupId, config.postId));
+            setPostUrl(wallProcessor.generatePostUrl(groupId, config.postId));
             setHours(config.hoursToGet);
         }
     }, [config]);
@@ -33,14 +34,14 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
     const submit = () => {
         saveGroupParams({
             promocode,
-            postId: WallProcessor.extractPostId(postUrl),
+            postId: wallProcessor.extractPostId(postUrl),
             hoursToGet: hours
         });
     }
 
 
     const isPromocodeValid = (): boolean => !!promocode;
-    const isPostUrlValid = (): boolean => WallProcessor.isPostUrlValid(groupId, postUrl);
+    const isPostUrlValid = (): boolean => wallProcessor.isPostUrlValid(groupId, postUrl);
 
     const isEverythingValid = (): boolean => {
         return isPostUrlValid() && isPromocodeValid();
@@ -67,7 +68,7 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
                 top={<>URL поста на <Link href={`https://vk.com/wall-${groupId}`} target='_blank'>стене сообщества</Link></>}
                 status={isPostUrlValid() ? 'valid' : 'error'}
                 value={postUrl}
-                onChange={(e) => setPostUrl(WallProcessor.normalizePostUrl(groupId, e.currentTarget.value))}
+                onChange={(e) => setPostUrl(wallProcessor.normalizePostUrl(groupId, e.currentTarget.value))}
             />
             <Slider
                 top={`Минимальный порог: ${hours} ч.`}

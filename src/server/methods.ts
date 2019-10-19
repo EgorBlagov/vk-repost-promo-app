@@ -10,7 +10,7 @@ function getUrl(m: ApiMethods) {
 }
 
 type Responder<K extends ApiMethods=ApiMethods> = (response: ResponseMap[K]) => express.Response;
-function declareRoute<K extends ApiMethods=ApiMethods>(router: express.Router, method: K, body: (req:express.Request, res: express.Response, responder: Responder<K>)=>void): void {
+function declareRoute<K extends ApiMethods=ApiMethods>(router: express.Router, method: K, body: (req:express.Request, res: express.Response, responder: Responder<K>) => void): void {
     router.get(getUrl(method), (req, res) => {
         const responder: Responder<K> = (resp) => res.send(resp);
         body(req, res, responder);

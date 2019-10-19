@@ -1,24 +1,20 @@
-import * as React from 'react';
-import * as _ from 'lodash';
-
-import { useState, useEffect } from 'react';
-import View from '@vkontakte/vkui/dist/components/View/View';
-import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
-import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-
-import Icon16Clear from '@vkontakte/icons/dist/16/clear';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
-
-import Home from './panels/home/Home';
-import { Configuration } from './panels/config/Configuration';
-import { api } from './logic/api';
-
 import '@vkontakte/vkui/dist/vkui.css';
 import './App.css';
-import { Brief } from './panels/brief/Brief';
-import { LaunchParams } from '../common/api';
+
+import * as React from 'react';
+import { useState, useEffect } from 'react';
+import * as _ from 'lodash';
+
+import { ScreenSpinner, Snackbar, View, Panel } from '@vkontakte/vkui';
+import { Icon16CheckCircle, Icon16Clear } from './icons';
+
+import { api } from './logic/api';
 import { Panels } from './logic/navigation';
+import { LaunchParams } from '../common/api';
+
+import { Brief } from './panels/brief/Brief';
+import { Configuration } from './panels/config/Configuration';
+import { Home } from './panels/home/Home';
 
 export const App = () => {
 	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);
@@ -131,7 +127,7 @@ export const App = () => {
 				isReposted={fetchedRepost}
 				fetching={fetching}
 				onRefresh={onRefresh}
-				notify={(m)=>showSnackbar(false, m)}
+				notify={(m) => showSnackbar(false, m)}
 				launchInfo={fetchedLaunchInfo}
 			>
 				{snackbar}

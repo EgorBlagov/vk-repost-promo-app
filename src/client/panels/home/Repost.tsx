@@ -1,32 +1,22 @@
 import * as React from 'react';
-import PullToRefresh from '@vkontakte/vkui/dist/components/PullToRefresh/PullToRefresh';
-import Group from '@vkontakte/vkui/dist/components/Group/Group';
-import List from '@vkontakte/vkui/dist/components/List/List';
 
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Cell from '@vkontakte/vkui/dist/components/Cell/Cell';
-import Avatar from '@vkontakte/vkui/dist/components/Avatar/Avatar';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import Spinner from '@vkontakte/vkui/dist/components/Spinner/Spinner';
-
-import Icon16Clear from '@vkontakte/icons/dist/16/clear';
-import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
-
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import { PullToRefresh, Group, List, Button, Cell, Avatar, Div, Spinner, Link } from '@vkontakte/vkui';
+import { Icon16Clear, Icon16CheckCircle } from '../../icons';
 
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { api } from '../../logic/api';
 
 export interface RepostProps {
-    onRefresh: ()=>void;
+    onRefresh: () => void;
     fetching: boolean;
     isMember: boolean;
     isReposted: boolean;
     promo: string;
-    notify: (x:string)=>void;
+    notify: (x:string) => void;
 }
-const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo}: RepostProps) => {
-    const renderPromocode = ()  => {
+
+export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo}: RepostProps) => {
+    const renderPromocode = () => {
 		if (isMember && isReposted) {
 			const aside = <CopyToClipboard text={promo}>
 				<Button size="m" onClick={() => notify('Скопировано')}>Скопировать</Button>
@@ -96,5 +86,3 @@ const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo}: Repo
         </Group>
     </PullToRefresh>
 }
-
-export default Repost;
