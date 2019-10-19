@@ -24,10 +24,10 @@ import Icon28ChevronBack from '@vkontakte/icons/dist/28/chevron_back';
 import Icon24Back from '@vkontakte/icons/dist/24/back';
 import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 
-import api from '../api';
+import api from '../../api';
 import EditGroup from './EditGroup';
-import { Panels } from '../navigation';
-import { IGroupConfig, LaunchParams, IGroupConfiguredResult, IGroupConfigResult } from '../../common/api';
+import { Panels } from '../../logic/navigation';
+import { IGroupConfig, LaunchParams, IGroupConfiguredResult, IGroupConfigResult } from '../../../common/api';
 
 const osname = platform();
 

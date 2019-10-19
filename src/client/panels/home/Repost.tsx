@@ -22,7 +22,7 @@ import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 import Link from '@vkontakte/vkui/dist/components/Link/Link';
 
 import * as CopyToClipboard from 'react-copy-to-clipboard';
-import api from '../api';
+import api from '../../api';
 
 export interface RepostProps {
     onRefresh: ()=>void;

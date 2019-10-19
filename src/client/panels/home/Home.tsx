@@ -22,10 +22,10 @@ import Link from '@vkontakte/vkui/dist/components/Link/Link';
 
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 
-import api from '../api';
+import api from '../../api';
 import Repost from './Repost';
-import { Panels } from '../navigation';
-import { LaunchParams } from '../../common/api';
+import { Panels } from '../../logic/navigation';
+import { LaunchParams } from '../../../common/api';
 
 export interface HomeProps {
 	id: Panels;
