@@ -2,11 +2,12 @@ import * as express from 'express';
 import * as session from 'express-session';
 import * as bodyParser from 'body-parser';
 
-import {router as methodsRouter} from './methods';
-import {validate} from './security';
+import { router as methodsRouter } from './methods';
+import { validate } from './security';
+import { sendError } from '../common/errors';
+
 const app: express.Application = express();
 const port: string = process.env.PORT || '5000';
-
 
 app.use(session({
     secret: 'repost-session-secret',
@@ -19,7 +20,7 @@ app.use(bodyParser.json());
 app.get('*', (req, res, next) => {
     
     if (process.env.VK_KEY === undefined) {
-        res.status(500).send({error: 'Deployment error'});
+        sendError(res, 'Deployment error');
         return;
     }
     if (req.query.vk_app_id !== undefined) {
@@ -30,7 +31,7 @@ app.get('*', (req, res, next) => {
         valid = validate(req.session.params)
     } finally {
         if (!valid) {
-            res.status(500).send({error: 'Authorization error'});
+            sendError(res, 'Authorization error');
             return;
         }
     }

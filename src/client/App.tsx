@@ -10,7 +10,7 @@ import { Icon16CheckCircle, Icon16Clear } from './icons';
 
 import { api } from './logic/api';
 import { Panels } from './logic/navigation';
-import { LaunchParams } from '../common/api';
+import { ILaunchParams } from '../common/api';
 
 import { Brief } from './panels/brief/Brief';
 import { Configuration } from './panels/config/Configuration';
@@ -19,14 +19,12 @@ import { toMsg } from '../common/errors';
 
 export const App = () => {
 	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);
-	const [fetchedUser, setUser] = useState(null);
 	const [popout, setPopout] = useState<React.ReactNode>(<ScreenSpinner size='large' />);
 	const [fetching, setFetching] = useState<boolean>(true);
 	const [fetchedMember, setIsMember] = useState<boolean>(null);
 	const [fetchedRepost, setIsRepost] = useState<boolean>(null);
 	const [snackbar, setSnackbar] = useState<React.ReactNode>(null);
-	const [ownedGroups, setOwnedGroups] = useState<number[]>([]);
-	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState<LaunchParams>(undefined);
+	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState<ILaunchParams>(undefined);
 
 	const init = async () => {
 		const launchInfo = await api.getLaunchInfo();
@@ -48,15 +46,10 @@ export const App = () => {
 
 	const onRefresh = async () => {
 		setFetching(true);
-		
-		const user = await api.getUserInfo();
-		setUser(user);
 		const isMember = await api.isMember();
 		setIsMember(isMember);
 		const isRepost = await api.isRepost();
 		setIsRepost(isRepost);
-		const ownedGroups = await api.getOwnedGroups();
-		setOwnedGroups(ownedGroups);
 		setPopout(null);
 		setFetching(false);
 	}

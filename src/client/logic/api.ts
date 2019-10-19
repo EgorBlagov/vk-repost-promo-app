@@ -1,12 +1,12 @@
 import * as _ from 'lodash';
-import * as EventEmitter from 'events';
 
 import connect from '@vkontakte/vk-connect';
+
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, IError } from '../../common/api';
+import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, IError, ILaunchParams, Errorize } from '../../common/api';
+import { toMsg } from '../../common/errors';
 
-
-class Api extends EventEmitter {
+class Api {
     inited: boolean;
     accessToken?: string;
     groupId: number;
@@ -16,65 +16,39 @@ class Api extends EventEmitter {
     groupInfos: Map<number, any>;
 
     constructor() {
-        super();
         this.inited = false;
         this.accessToken = null;
-        this.groupId = 173966070;
         this.userInfo = null;
-        this.url = 'https://vk.com/wall-173966070_18';
         this.groupInfos = new Map();
-        this._postId = 18;
-        connect.subscribe((e) => this.handleEvent(e));
     }
 
-    get groupUrl() {
-        return `https://vk.com/public${this.groupId}`;
-    }
-
-    get commonParams() {
+    private get commonParams() {
         return {
             v: '5.101',
             access_token: this.accessToken,
-            request_id: this.generate_id()
+            request_id: this.generateId()
         }
     }
 
-    handleEvent(e: any) {
-        const {detail: {type, data}} = e;
-        this.emit('event', type, data);
-    }
-
-    private generate_id(): string {
+    private generateId(): string {
         return Math.random().toString(36).substr(2,15);
     }
 
-    async errorDecorator<K>(promise: Promise<K>, errorMessage: string, critical: boolean = false) {
-        try {
-            return await promise;
-        } catch (err) {
-            this.emit('error', {error: errorMessage, critical});
-            return null;
-        }
-    }
-
     async Subscribe() {
-        return await this.errorDecorator(
-            this.invokeOnceReady('VKWebAppJoinGroup', {'group_id': this.groupId}),
-            'Не удалось подписаться на сообщество'
-        )
+        return this.invokeOnceReady('VKWebAppJoinGroup', {group_id: this.groupId})
     }
 
-    async obtainToken() {
+    private async obtainToken() {
         const result = await connect.sendPromise('VKWebAppGetAuthToken', {'app_id': 7153874, 'scope': 'wall,groups'});
         this.accessToken = result.access_token;
     }
 
-    async invokeOnceReady<K extends IOMethodName>(method: K, params?: RequestProps<K>): Promise<ReceiveData<K>> {
+    private async invokeOnceReady<K extends IOMethodName>(method: K, params?: RequestProps<K>): Promise<ReceiveData<K>> {
         if (!this.inited) {
-            try{
+            try {
                 await this.obtainToken()
             } catch (err) {
-                this.emit('error', {error: 'Не удалось получить доступ', critical: true});
+                throw new Error(`Не удалось получить доступ: ${toMsg(err)}`);
             }
             this.inited = true;
         }
@@ -165,53 +139,8 @@ class Api extends EventEmitter {
         return reposted;
     }
 
-    
-
     async install() {
-        return await this.errorDecorator(
-            connect.sendPromise('VKWebAppAddToCommunity'),
-            'Не удалось установить сервис'
-        )
-    }
-
-    // Backend calls
-
-    async getLaunchInfo() {
-        try {
-            return await apiCall(ApiMethods.GetLaunchParams);
-        } catch (err) {
-            this.emit('error', {error: 'Не удалось проверить параметры запуска', critical: true});
-        }
-    }
-
-    async isGroupConfigured(groupId: number): Promise<boolean> {
-        const response = await fetch(`/api/groups/${groupId}/available`);
-        const json: IGroupConfiguredResult & IError = await response.json();
-        if (response.status === 500) {
-            throw Error(`Не удалось получить статус конфигурации: ${json.error}`);
-        }
-        return json.isConfigured
-    }
-
-    async getGroupConfig(groupId: number): Promise<IGroupConfig> {
-        const response = await fetch(`/api/groups/${groupId}`);
-        const configResult: IGroupConfigResult = await response.json();
-        return configResult.config;
-    }
-
-    async saveGroupParams(groupId: number, groupConfig: IGroupConfig): Promise<void> {
-        const response = await fetch (`/api/groups/${groupId}`, {
-            method: 'PUT',
-            body: JSON.stringify(groupConfig),
-            headers: new Headers({
-                'Content-Type': 'application/json'
-            })
-        });
-
-        if (response.status === 500) {
-            const json = await response.json();
-            throw Error(json.error);
-        }
+        return connect.sendPromise('VKWebAppAddToCommunity');
     }
 
     async checkWallPost(groupId: number, postId: number): Promise<boolean> {
@@ -226,6 +155,58 @@ class Api extends EventEmitter {
         );
 
         return response.response.length !== 0;
+    }
+
+     // Backend calls
+
+     async getLaunchInfo(): Promise<ILaunchParams> {
+        try {
+            return await this.request<ILaunchParams>(`/api/launch_params`);
+        } catch (error) {
+            throw new Error(`Не удалось получить параметры запуска: ${toMsg(error)}`);
+        }
+    }
+
+    async isGroupConfigured(groupId: number): Promise<boolean> {
+        try {
+            const result: IGroupConfiguredResult = await this.request(`/api/groups/${groupId}/available`);
+            return result.isConfigured;
+        } catch (error) {
+            throw new Error(`Не удалось получить статус конфигурации: ${toMsg(error)}`);
+        }
+    }
+
+    async getGroupConfig(groupId: number): Promise<IGroupConfig> {
+        try {
+            const result: IGroupConfigResult = await this.request(`/api/groups/${groupId}`);
+            return result.config;
+        } catch (error) {
+            throw new Error(`Не удалось получить параметры группы: ${toMsg(error)}`);
+        }
+    }
+
+    async saveGroupParams(groupId: number, groupConfig: IGroupConfig): Promise<void> {
+        try {
+            await this.request(`/api/groups/${groupId}`, {
+                method: 'PUT',
+                body: JSON.stringify(groupConfig),
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                })
+            });
+        } catch (error) {
+            throw new Error(`Не удалось сохранить параметры группы: ${toMsg(error)}`);
+        }
+    }
+
+    private async request<T>(url: string, params?: RequestInit) : Promise<T> {
+        const response = await fetch(url, params);
+        const json: Errorize<T> = await response.json();
+        if (response.status === 500) {
+            throw new Error(toMsg(json.error));
+        }
+
+        return json;
     }
 }
 

@@ -40,7 +40,11 @@ export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo
 	}
     const renderSubscribe = () => {
         let aside = <div style={{ display: 'flex' }}>
-            <Button size="m" onClick={()=> api.Subscribe()}>Подписаться</Button>
+            <Button size="m" onClick={async ()=> {
+                console.log('sub');
+                const res = await api.Subscribe();
+                console.log(res);
+            }}>Подписаться</Button>
         </div>
 
         if (isMember) {

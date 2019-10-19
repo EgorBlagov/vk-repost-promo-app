@@ -1,24 +1,6 @@
-export enum ApiMethods {
-    GetLaunchParams = 'launch_params',
-}
-
-export interface LaunchParams {
+export interface ILaunchParams {
     groupId?: number;
     isAdmin: boolean;
-}
-
-export type ResponseMap = {
-    [ApiMethods.GetLaunchParams]: LaunchParams
-}
-
-export type RequestMap = {
-    [ApiMethods.GetLaunchParams]: {}
-}
-
-export async function apiCall<K extends ApiMethods=ApiMethods>(method: K , params?: RequestMap[K]): Promise<ResponseMap[K]> {
-    const response: any = await fetch(`/api/${method}`);
-    const json: Promise<ResponseMap[K]> = await response.json();
-    return json;
 }
 
 export interface IGroupConfig {
@@ -38,3 +20,5 @@ export interface IGroupConfigResult {
 export interface IError {
     error: string;
 }
+
+export type Errorize<T> = T & IError;

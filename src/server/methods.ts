@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import { ApiMethods, ResponseMap, IGroupConfig } from '../common/api';
+import { IGroupConfig } from '../common/api';
 import { Storage, Sqlite3Storage } from './storage';
 
 export const router: express.Router = express.Router();

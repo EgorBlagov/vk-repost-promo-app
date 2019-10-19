@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 
-import { IGroupConfig, LaunchParams } from '../../../common/api';
+import { IGroupConfig, ILaunchParams } from '../../../common/api';
 import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
 import { toMsg } from '../../../common/errors';
@@ -16,7 +16,7 @@ export interface ConfigurationProps {
 	id: Panels;
     go: (to: Panels) => void;
     children: any;
-    launchInfo: LaunchParams;
+    launchInfo: ILaunchParams;
     notify: (message: string, isError: boolean) => void;
 }
 

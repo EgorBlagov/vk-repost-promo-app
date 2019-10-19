@@ -5,7 +5,7 @@ import { Icon28Settings } from '../../icons';
 
 import { Repost } from './Repost';
 import { Panels } from '../../logic/navigation';
-import { LaunchParams } from '../../../common/api';
+import { ILaunchParams } from '../../../common/api';
 
 export interface HomeProps {
 	id: Panels;
@@ -16,7 +16,7 @@ export interface HomeProps {
 	fetching: boolean;
 	notify: (x:string) => void;
 	children: any;
-	launchInfo: LaunchParams;
+	launchInfo: ILaunchParams;
 }
 
 export const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetching, notify, children}: HomeProps) => {
