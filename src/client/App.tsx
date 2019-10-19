@@ -6,16 +6,13 @@ import View from '@vkontakte/vkui/dist/components/View/View';
 import ScreenSpinner from '@vkontakte/vkui/dist/components/ScreenSpinner/ScreenSpinner';
 import Snackbar from '@vkontakte/vkui/dist/components/Snackbar/Snackbar';
 import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-
 
 import Icon16Clear from '@vkontakte/icons/dist/16/clear';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
 import Home from './panels/home/Home';
 import Configuration from './panels/config/Configuration';
-import api from './api';
+import api from './logic/api';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import './App.css';

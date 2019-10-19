@@ -3,7 +3,7 @@ import * as EventEmitter from 'events';
 
 import connect from '@vkontakte/vk-connect';
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult } from '../common/api';
+import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult } from '../../common/api';
 
 
 class Api extends EventEmitter {

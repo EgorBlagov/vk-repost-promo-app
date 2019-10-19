@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Div, Panel, Group, List, Cell, Button, PanelHeader } from "@vkontakte/vkui"
 import './Brief.css'
-import api from '../../api';
+import api from '../../logic/api';
 import { Panels } from '../../logic/navigation';
 export interface BriefProps {
     id: Panels;
