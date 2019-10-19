@@ -21,7 +21,7 @@
     border-width: 2px;
 }
 
-.centered-panel {
+.tool__flex {
     display: flex;
     justify-content: space-around;
 }
