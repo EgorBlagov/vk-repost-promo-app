@@ -1,23 +1,16 @@
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 import * as _ from 'lodash';
-import { useState, useEffect} from 'react';
 
-import { platform, IOS } from '@vkontakte/vkui';
+import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 
-import Panel from '@vkontakte/vkui/dist/components/Panel/Panel';
-import PanelHeader from '@vkontakte/vkui/dist/components/PanelHeader/PanelHeader';
-import Group from '@vkontakte/vkui/dist/components/Group/Group';
-
-import HeaderButton from '@vkontakte/vkui/dist/components/HeaderButton/HeaderButton';
-import Icon28ChevronBack from '@vkontakte/icons/dist/28/chevron_back';
-import Icon24Back from '@vkontakte/icons/dist/24/back';
-
-import api from '../../logic/api';
-import EditGroup from './EditGroup';
+import { IGroupConfig, LaunchParams, IGroupConfiguredResult } from '../../../common/api';
+import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
-import { IGroupConfig, LaunchParams, IGroupConfiguredResult, IGroupConfigResult } from '../../../common/api';
+import { toMsg } from '../../logic/errors';
 
-const osname = platform();
+import { CrossPlatformBack } from '../../utils/CrossPlatformBack';
+import { EditGroup } from './EditGroup';
 
 export interface ConfigurationProps {
 	id: Panels;
@@ -27,7 +20,7 @@ export interface ConfigurationProps {
     notify: (message: string, isError: boolean) => void;
 }
 
-const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
+export const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
     const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -42,7 +35,7 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
             setGroupConfig({
                 hoursToGet: 0,
                 postId: 0,
-                promocode: 'введите промокод'
+                promocode: undefined
             });
         }
     }
@@ -59,7 +52,7 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
             await api.saveGroupParams(launchInfo.groupId, groupConfig);
             notify('Сохранено', false);
         } catch (err) {
-            notify(`Не удалось сохранить: ${err}`, true);
+            notify(`Не удалось сохранить: ${toMsg(err)}`, true);
         } finally {
             setIsSaving(false);
         }
@@ -67,22 +60,18 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
 
     useEffect(() => {
         fetchConfigStatus()
-            .catch(err => notify(`Не удалось получить статус: ${err}`, true));
+            .catch(err => notify(`Не удалось получить статус: ${toMsg(err)}`, true));
     }, []);
-
-    const renderContent = () => {
-        
-    }
 
 	return <Panel id={id}>
 		<PanelHeader
-            left={<HeaderButton onClick={()=>go(Panels.Home)}>{osname === IOS ? <Icon28ChevronBack /> : <Icon24Back />}</HeaderButton>}
+            left={<HeaderButton onClick={()=>go(Panels.Home)}>{<CrossPlatformBack/>}</HeaderButton>}
         >Настройка</PanelHeader>
-        <Group>    
+        <Group>
             <EditGroup 
                 config={groupConfig}
                 saveGroupParams={saveGroupParams}
-                reset={()=>fetchConfigStatus().catch(err => notify(`Не удалось сбросить статус: ${err}`, true))}
+                reset={() => fetchConfigStatus().catch(err => notify(`Не удалось сбросить статус: ${toMsg(err)}`, true))}
                 groupId={launchInfo.groupId}
                 saving={isSaving}
             />
@@ -90,5 +79,3 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
         {children}
 	</Panel>;
 }
-
-export default Configuration;

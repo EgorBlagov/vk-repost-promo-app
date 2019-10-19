@@ -229,5 +229,4 @@ class Api extends EventEmitter {
     }
 }
 
-const api = new Api();
-export default api
+export const api = new Api();

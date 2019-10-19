@@ -11,8 +11,8 @@ import Icon16Clear from '@vkontakte/icons/dist/16/clear';
 import Icon16CheckCircle from '@vkontakte/icons/dist/16/check_circle';
 
 import Home from './panels/home/Home';
-import Configuration from './panels/config/Configuration';
-import api from './logic/api';
+import { Configuration } from './panels/config/Configuration';
+import { api } from './logic/api';
 
 import '@vkontakte/vkui/dist/vkui.css';
 import './App.css';

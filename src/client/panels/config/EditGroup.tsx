@@ -1,19 +1,12 @@
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 
-import { platform, IOS, InfoRow, FormLayout, Input, FormStatus } from '@vkontakte/vkui';
-
-import Button from '@vkontakte/vkui/dist/components/Button/Button';
-import Div from '@vkontakte/vkui/dist/components/Div/Div';
-import Spinner from '@vkontakte/vkui/dist/components/Spinner/Spinner';
-import Slider from '@vkontakte/vkui/dist/components/Slider/Slider';
-import Link from '@vkontakte/vkui/dist/components/Link/Link';
+import { Button, FormLayout, Input, Div, Spinner, Slider, Link } from '@vkontakte/vkui';
 
 import { IGroupConfig } from '../../../common/api';
 import { EditGroupStatus } from './EditGroupStatus';
-
-const osname = platform();
+import { WallProcessor } from '../../logic/wall-processor';
 
 export interface EditGroupProps {
     groupId: number,
@@ -23,21 +16,7 @@ export interface EditGroupProps {
     reset: ()=>void;
 }
 
-declare module '@vkontakte/vkui/dist/components/Spinner/Spinner' {
-    interface SpinnerProps {
-        className?: string;
-    }
-}
-
-declare module '@vkontakte/vkui/dist/components/Input/Input' {
-    interface InputProps {
-        top?: React.ReactNode;
-        name?: string;
-        value?: string;
-    }
-}
-
-const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupProps) => {
+export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupProps) => {
     const [promocode, setPromocode] = useState<string>(undefined);
     const [postUrl, setPostUrl] = useState<string>(undefined);
     const [hours, setHours] = useState<number>(undefined);
@@ -46,7 +25,7 @@ const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupP
         if (config !== undefined) {
             // TODO: attention here, maybe can cause rewritings
             setPromocode(config.promocode);
-            setPostUrl(`https://vk.com/wall-${groupId}_${config.postId}`);
+            setPostUrl(WallProcessor.generatePostUrl(groupId, config.postId));
             setHours(config.hoursToGet);
         }
     }, [config]);
@@ -54,37 +33,14 @@ const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupP
     const submit = () => {
         saveGroupParams({
             promocode,
-            postId: extractPostId(postUrl),
+            postId: WallProcessor.extractPostId(postUrl),
             hoursToGet: hours
         });
     }
 
-    const parsePostUrl = (url: string): string => {
-        if (isPostUrlValid(url)) {
-            return `https://vk.com/wall-${groupId}_${extractPostId(url)}`;
-        } else {
-            return url;
-        }
-    }
-
-    const extractPostId = (url: string): number => {
-        return parseInt(url.match(/wall-\d+_(\d+)$/)[1])
-    }
-
-    const isPostUrlValid = (url: string = postUrl): boolean => {
-        if (url === undefined) {
-            return false;
-        }
-
-        const match = url.match(new RegExp(`wall-${groupId}_(\\d+)$`));
-        if (match === null) {
-            return false;
-        }
-
-        return true;
-    }
 
     const isPromocodeValid = (): boolean => !!promocode;
+    const isPostUrlValid = (): boolean => WallProcessor.isPostUrlValid(groupId, postUrl);
 
     const isEverythingValid = (): boolean => {
         return isPostUrlValid() && isPromocodeValid();
@@ -111,7 +67,7 @@ const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupP
                 top={<>URL поста на <Link href={`https://vk.com/wall-${groupId}`} target='_blank'>стене сообщества</Link></>}
                 status={isPostUrlValid() ? 'valid' : 'error'}
                 value={postUrl}
-                onChange={(e) => setPostUrl(parsePostUrl(e.currentTarget.value))}
+                onChange={(e) => setPostUrl(WallProcessor.normalizePostUrl(groupId, e.currentTarget.value))}
             />
             <Slider
                 top={`Минимальный порог: ${hours} ч.`}
@@ -132,5 +88,3 @@ const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: EditGroupP
         </FormLayout>
     }
 }
-
-export default EditGroup;

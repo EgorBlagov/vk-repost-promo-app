@@ -131,3 +131,17 @@ declare module '@vkontakte/vkui/dist/components/PanelHeaderContent/PanelHeaderCo
     }
     export default class PanelHeaderContent extends React.Component<PanelHeaderContentProps, any>{}
 }
+
+declare module '@vkontakte/vkui/dist/components/Spinner/Spinner' {
+    interface SpinnerProps {
+        className?: string;
+    }
+}
+
+declare module '@vkontakte/vkui/dist/components/Input/Input' {
+    interface InputProps {
+        top?: React.ReactNode;
+        name?: string;
+        value?: string;
+    }
+}

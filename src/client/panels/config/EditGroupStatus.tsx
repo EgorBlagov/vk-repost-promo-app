@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { FormStatus } from "@vkontakte/vkui";
 
+import { WallProcessor } from '../../logic/wall-processor';
 
 export interface EditGroupStatusProps {
     groupId: number;
@@ -14,8 +15,9 @@ export const EditGroupStatus = ({groupId, isPostUrlValid, isPromocodeValid }: Ed
         if (!isPromocodeValid) {
             return 'Промокод не должен быть пустым';
         } else if (!isPostUrlValid) {
-            return `Неправильный URL поста, поддерживаемые форматы: https://vk.com/wall-${groupId}_1234, wall-${groupId}_1234, https://vk.com/wall-${groupId}?w=wall-${groupId}_1233`;
+            return `Неправильный URL поста, поддерживаемые форматы: ${WallProcessor.getExamplePostUrls(groupId).join(', ')}`;
         }
+
         return '';
     };
 
