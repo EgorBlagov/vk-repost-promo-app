@@ -1,7 +1,7 @@
 import * as sqlite from 'sqlite3';
 import * as _ from 'lodash';
 import { IGroupConfig } from '../common/api';
-import { rejects } from 'assert';
+import { toMsg } from '../common/errors';
 
 declare module "sqlite3" {
     interface Database {
@@ -63,7 +63,7 @@ export class Sqlite3Storage implements Storage {
         } else {
             this.db.close(err => {
                 if (err) {
-                    this.log(`Unable to cleanup database: ${err.message}`, LogLevel.ERROR);
+                    this.log(`Unable to cleanup database: ${toMsg(err)}`, LogLevel.ERROR);
                 }
             });
         }

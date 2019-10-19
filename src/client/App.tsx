@@ -15,6 +15,7 @@ import { LaunchParams } from '../common/api';
 import { Brief } from './panels/brief/Brief';
 import { Configuration } from './panels/config/Configuration';
 import { Home } from './panels/home/Home';
+import { toMsg } from '../common/errors';
 
 export const App = () => {
 	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);
@@ -80,7 +81,7 @@ export const App = () => {
 
 	
 	const errorHandler = ({error, critical}: {error: string, critical: boolean}) => {
-		showSnackbar(true, `Ошибка: ${error}`);
+		showSnackbar(true, `Ошибка: ${toMsg(error)}`);
 	}
 
 	const listener = (type: string, data: any) => {
