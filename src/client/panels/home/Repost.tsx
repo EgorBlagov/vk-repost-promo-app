@@ -23,17 +23,17 @@ export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo
 			</CopyToClipboard>;
 			
 			return <Cell asideContent={aside}>
-				<Div className='Success' id='promo'>{promo}</Div>
+				<Div className='tool__success' id='promo'>{promo}</Div>
 			</Cell>;
 		} else {
-			return <Div className='Error'>Условия не выполнены</Div>;
+			return <Div className='tool__error'>Условия не выполнены</Div>;
 		}
 	}
 	const renderIcon = (ok?: boolean) => {
 		if (ok === true) {
-			return <Icon16CheckCircle className='Success'/>;
+			return <Icon16CheckCircle className='tool__success'/>;
 		} else if (ok === false) {
-			return <Icon16Clear  className='Error'/>;
+			return <Icon16Clear  className='tool__error'/>;
 		} else {
 			return <Avatar size={16}><Spinner size="small"/></Avatar>
 		}
@@ -75,13 +75,13 @@ export const Repost = ({onRefresh, fetching, isReposted, isMember, notify, promo
     }
     
     return <PullToRefresh onRefresh={onRefresh} isFetching={fetching}>
-        <Group title={`Выполни задание и получи бонус!`} description="Потяни чтобы обновить">
+        <Group title={`Выполните задание и получи бонус!`} description="Потяните чтобы обновить">
             <List>
                 {renderSubscribe()}     
                 {renderRepost()}
             </List>
         </Group>
-        <Group title="Твой промокод">
+        <Group title="Ваш промокод">
             {renderPromocode()}
         </Group>
     </PullToRefresh>

@@ -62,10 +62,10 @@ export const App = () => {
 	}
 
 	const showSnackbar = (isError: boolean, message: string) => {
-		let before = <Icon16CheckCircle className='Success'/>;
+		let before = <Icon16CheckCircle className='tool__success'/>;
 		
 		if (isError) {
-			before = <Icon16Clear className='Error' />;
+			before = <Icon16Clear className='tool__error' />;
 		}
 
 		setSnackbar(

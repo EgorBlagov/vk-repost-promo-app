@@ -23,7 +23,7 @@ export const Brief = ({id, children}: BriefProps) => {
                         Добавьте сервис в свое сообщество, настройте, и получите результат!
                         </Div>}>
                     <Div  className='brief__header tool__flex'>
-                        Выдавай промокоды за репосты и подписку на свое сообщество
+                        Выдавайте промокоды за репосты и подписку на свое сообщество
                     </Div>
                 </Cell>
                 <Cell className='tool__flex'>
