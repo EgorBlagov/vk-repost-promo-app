@@ -38,10 +38,25 @@ declare module '@vkontakte/vkui/dist/components/Group/Group' {
     export default class Group extends React.Component<GroupProps, any>{}
 }
 
+declare module '@vkontakte/vkui/dist/components/Slider/Slider' {
+    import * as React from 'react';
+    export interface SliderProps {
+        top?: string;
+        step?: number;
+        min?: number;
+        max?: number;
+        value?: number;
+        onChange?: (newValue: number)=>void;
+        bottom?: string;
+    }
+
+    export default class Slider extends React.Component<SliderProps, any>{}
+}
+
 declare module '@vkontakte/icons/dist/16/clear' {
     import * as React from 'react';
     export interface Icon16ClearProps {
-        className: string;
+        className?: string;
     }
     export default class Icon16Clear extends React.Component<Icon16ClearProps, any>{}
 }

@@ -41,17 +41,16 @@ export interface ConfigurationProps {
 
 const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
     const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
-    
+    const [isSaving, setIsSaving] = useState<boolean>(false);
+
     const fetchConfigStatus = async () => {
-        const response = await fetch(`/api/groups/${launchInfo.group_id}/available`);
-        const groupAvailableStatus: IGroupConfiguredResult = await response.json();
+        const groupAvailableStatus: IGroupConfiguredResult = await api.isGroupConfigured(launchInfo.groupId);
 
         if (groupAvailableStatus.isConfigured) {
-            const response = await fetch(`/api/groups/${launchInfo.group_id}`);
-            const json: IGroupConfigResult = await response.json();
-            setGroupConfig(json.config);
+            const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
+            setGroupConfig(cfg);
         } else {
-            notify('Промокод в этой группе еще не настроен', true);
+            notify(`Промокод в этой группе еще не настроен`, true);
             setGroupConfig({
                 hoursToGet: 0,
                 postId: 0,
@@ -60,22 +59,22 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
         }
     }
 
-    const saveGroupParams = () => {
-        fetch(`/api/groups/${launchInfo.group_id}`, {
-            method: 'PUT',
-            body: JSON.stringify(groupConfig), // data can be `string` or {object}!
-            headers: new Headers({
-                'Content-Type': 'application/json'
-            })
-        }).then((res) => {
-            if (res.status === 500) {
-                res.json().then(json => {
-                    notify(`Не удалось сохранить параметры: ${JSON.stringify(json.error)}`, true);
-                });
-            } else {
-                notify('Сохранено', false)}
+    const saveGroupParams = async (groupConfig: IGroupConfig) => {
+        try {
+            setIsSaving(true);
+            const postExists = await api.checkWallPost(launchInfo.groupId, groupConfig.postId);
+            if (!postExists) {
+                notify(`Указанный пост не найден на стене сообщества`, true);
+                return;
             }
-        ).catch(err => notify(`Не удалось сохранить параметры: ${err}`, true));
+
+            await api.saveGroupParams(launchInfo.groupId, groupConfig);
+            notify('Сохранено', false);
+        } catch (err) {
+            notify(`Не удалось сохранить: ${err}`, true);
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     useEffect(() => {
@@ -84,23 +83,22 @@ const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationPr
     }, []);
 
     const renderContent = () => {
-        if (groupConfig === undefined) {
-            return <Spinner size="large"/>
-        } else {
-            return (
-                <Group>
-                    <Div>{`промокод: ${groupConfig.promocode}`}</Div>
-                    <Button onClick={() => saveGroupParams()}>Сохранить</Button>
-                </Group>
-            );
-        }
+        
     }
 
 	return <Panel id={id}>
 		<PanelHeader
             left={<HeaderButton onClick={()=>go(Panels.Home)}>{osname === IOS ? <Icon28ChevronBack /> : <Icon24Back />}</HeaderButton>}
         >Настройка</PanelHeader>
-        {renderContent()}
+        <Group>    
+            <EditGroup 
+                config={groupConfig}
+                saveGroupParams={saveGroupParams}
+                reset={()=>fetchConfigStatus().catch(err => notify(`Не удалось сбросить статус: ${err}`, true))}
+                groupId={launchInfo.groupId}
+                saving={isSaving}
+            />
+        </Group>
         {children}
 	</Panel>;
 }

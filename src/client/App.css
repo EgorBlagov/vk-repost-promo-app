@@ -30,3 +30,7 @@ h2.centered-panel {
     text-align: center;
     line-height: 1.5em;
 }
+
+.edit-group__spinner {
+    padding: 10px;
+}

@@ -3,7 +3,7 @@ import * as EventEmitter from 'events';
 
 import connect from '@vkontakte/vk-connect';
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { apiCall, ApiMethods } from '../common/api';
+import { apiCall, ApiMethods, IGroupConfiguredResult, IGroupConfig, IGroupConfigResult } from '../common/api';
 
 
 class Api extends EventEmitter {
@@ -165,6 +165,17 @@ class Api extends EventEmitter {
         return reposted;
     }
 
+    
+
+    async install() {
+        return await this.errorDecorator(
+            connect.sendPromise('VKWebAppAddToCommunity'),
+            'Не удалось установить сервис'
+        )
+    }
+
+    // Backend calls
+
     async getLaunchInfo() {
         try {
             return await apiCall(ApiMethods.GetLaunchParams);
@@ -173,12 +184,50 @@ class Api extends EventEmitter {
         }
     }
 
-    async install() {
-        return await this.errorDecorator(
-            connect.sendPromise('VKWebAppAddToCommunity'),
-            'Не удалось установить сервис'
-        )
+    async isGroupConfigured(groupId: number): Promise<IGroupConfiguredResult> {
+        const response = await fetch(`/api/groups/${groupId}/available`);
+        const json = await response.json();
+        if (response.status === 500) {
+            throw Error(`Не удалось получить статус конфигурации: ${json.error}`);
+        }
+        return json;
+    }
+
+    async getGroupConfig(groupId: number): Promise<IGroupConfig> {
+        const response = await fetch(`/api/groups/${groupId}`);
+        const configResult: IGroupConfigResult = await response.json();
+        return configResult.config;
+    }
+
+    async saveGroupParams(groupId: number, groupConfig: IGroupConfig): Promise<void> {
+        const response = await fetch (`/api/groups/${groupId}`, {
+            method: 'PUT',
+            body: JSON.stringify(groupConfig),
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            })
+        });
+
+        if (response.status === 500) {
+            const json = await response.json();
+            throw Error(json.error);
+        }
+    }
+
+    async checkWallPost(groupId: number, postId: number): Promise<boolean> {
+        const response: {response:any[]} = await this.invokeOnceReady("VKWebAppCallAPIMethod",
+            {
+                method: 'wall.getById',
+                params: {
+                    posts: `-${groupId}_${postId}`,
+                    ...this.commonParams
+                }
+            }
+        );
+
+        return response.response.length !== 0;
     }
 }
+
 const api = new Api();
 export default api

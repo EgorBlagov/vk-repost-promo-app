@@ -13,13 +13,13 @@ export const Brief = ({id, children}:BriefProps) => {
         id={id}
     >
         <PanelHeader>
-            ПРОМОКОД ЗА РЕПОСТ
+            Промокод за репост
         </PanelHeader>
         <Group>
             <List>
                 <Cell multiline
                     description={<Div className='centered-panel brief__header__description'>
-                        Добавьте сервис в свое сообщество, настройте, и получайте прирост посещаемости!
+                        Добавьте сервис в свое сообщество, настройте, и получите результат!
                         </Div>}>
                     <Div  className='centered-panel brief__header'>
                         Выдавай промокоды за репосты и подписку на свое сообщество

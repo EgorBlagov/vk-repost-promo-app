@@ -40,10 +40,10 @@ export interface HomeProps {
 }
 
 const Home = ({ id, go, launchInfo, isMember, isReposted, onRefresh, fetching, notify, children}: HomeProps) => {
-	const left = launchInfo.is_admin? <HeaderButton onClick={()=>go(Panels.Configure)} style={{marginLeft: '6px'}}>{<Icon28Settings/>}</HeaderButton> : null;
+	const left = launchInfo.isAdmin? <HeaderButton onClick={()=>go(Panels.Configure)} style={{marginLeft: '6px'}}>{<Icon28Settings/>}</HeaderButton> : null;
 	return <Panel id={id}>
 		<PanelHeader left={left}>Бонус</PanelHeader>
-		{launchInfo && launchInfo.group_id && <Repost
+		{launchInfo && launchInfo.groupId && <Repost
 			fetching={fetching}
 			onRefresh={onRefresh}
 			isMember={isMember}

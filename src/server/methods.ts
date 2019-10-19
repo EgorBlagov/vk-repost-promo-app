@@ -19,8 +19,8 @@ function declareRoute<K extends ApiMethods=ApiMethods>(router: express.Router, m
 
 declareRoute(router, ApiMethods.GetLaunchParams, (req, res, responder) => {
     responder({
-            group_id: req.session.params.vk_group_id,
-            is_admin: req.session.params.vk_viewer_group_role === 'admin'
+            groupId: req.session.params.vk_group_id,
+            isAdmin: req.session.params.vk_viewer_group_role === 'admin'
     });
 })
 

@@ -3,8 +3,8 @@ export enum ApiMethods {
 }
 
 export interface LaunchParams {
-    group_id?: number;
-    is_admin: boolean;
+    groupId?: number;
+    isAdmin: boolean;
 }
 
 export type ResponseMap = {

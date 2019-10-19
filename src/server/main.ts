@@ -20,15 +20,21 @@ app.get('*', (req, res, next) => {
     
     if (process.env.VK_KEY === undefined) {
         res.status(500).send({error: 'Deployment error'});
+        return;
     }
     if (req.query.vk_app_id !== undefined) {
         req.session.params = req.query;
     }
-
-    if (!validate(req.session.params)) {
-        res.status(500).send({error: 'Auth invalid'});
-        return;
+    let valid = false;
+    try {
+        valid = validate(req.session.params)
+    } finally {
+        if (!valid) {
+            res.status(500).send({error: 'Authorization error'});
+            return;
+        }
     }
+
     next();
 });
 

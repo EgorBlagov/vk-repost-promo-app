@@ -37,7 +37,7 @@ export const App = () => {
 	const init = async () => {
 		const launchInfo = await api.getLaunchInfo();
 		setFetchedLaunchInfo(launchInfo);
-		if (launchInfo.group_id !== undefined) {
+		if (launchInfo.groupId !== undefined) {
 			window.onfocus = onRefresh;
 			setActivePanel(Panels.Home);
 			await onRefresh();
@@ -117,15 +117,14 @@ export const App = () => {
 	}, []);
 
 	const go = (to: Panels) => {
+		setSnackbar(null);
 		setActivePanel(to);
 	};
 
 	return (
 		<View activePanel={activePanel} popout={popout}>
 			<Panel id={Panels.Empty}/>
-			<Brief
-				id={Panels.Brief}
-			>
+			<Brief id={Panels.Brief}>
 				{snackbar}
 			</Brief>
 			<Home
