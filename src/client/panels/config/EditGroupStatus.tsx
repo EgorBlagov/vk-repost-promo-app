@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import { FormStatus } from "@vkontakte/vkui";
-
 import { wallProcessor } from '../../logic/wall-processor';
 
 export interface EditGroupStatusProps {

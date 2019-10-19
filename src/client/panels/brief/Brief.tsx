@@ -5,13 +5,15 @@ import { Div, Panel, Group, List, Cell, Button, PanelHeader } from "@vkontakte/v
 
 import { Panels } from '../../logic/navigation';
 import { api } from '../../logic/api';
+import { toMsg } from '../../../common/errors';
 
 export interface BriefProps {
     id: Panels;
     children?: any;
+    notify: (msg: string, isError: boolean) => void;
 }
 
-export const Brief = ({id, children}: BriefProps) => {
+export const Brief = ({id, children, notify}: BriefProps) => {
     return <Panel id={id}>
         <PanelHeader>
             Промокод за репост
@@ -27,7 +29,7 @@ export const Brief = ({id, children}: BriefProps) => {
                     </Div>
                 </Cell>
                 <Cell className='tool__flex'>
-                    <Button onClick={async () => api.install()}>Установить в сообщество</Button>
+                    <Button onClick={() => api.install().catch(err => notify(toMsg(err), true))}>Установить в сообщество</Button>
                 </Cell>
             </List>
         </Group>

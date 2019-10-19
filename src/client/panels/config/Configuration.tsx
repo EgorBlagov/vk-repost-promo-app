@@ -25,18 +25,22 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const fetchConfigStatus = async () => {
-        const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
+        try {
+            const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
 
-        if (isGroupConfigured) {
-            const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
-            setGroupConfig(cfg);
-        } else {
-            notify(`Промокод в этой группе еще не настроен`, true);
-            setGroupConfig({
-                hoursToGet: 0,
-                postId: 0,
-                promocode: undefined
-            });
+            if (isGroupConfigured) {
+                const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
+                setGroupConfig(cfg);
+            } else {
+                notify(`Промокод в этой группе еще не настроен`, true);
+                setGroupConfig({
+                    hoursToGet: 0,
+                    postId: 0,
+                    promocode: undefined
+                });
+            }
+        } catch (error) {
+            notify(toMsg(error), true);
         }
     }
 
@@ -59,8 +63,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
     }
 
     useEffect(() => {
-        fetchConfigStatus()
-            .catch(err => notify(`Не удалось получить статус: ${toMsg(err)}`, true));
+        fetchConfigStatus();
     }, []);
 
 	return <Panel id={id}>

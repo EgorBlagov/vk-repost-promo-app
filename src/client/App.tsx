@@ -27,9 +27,15 @@ export const App = () => {
 	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState<ILaunchParams>(undefined);
 
 	const init = async () => {
-		const launchInfo = await api.getLaunchInfo();
-		setFetchedLaunchInfo(launchInfo);
-		if (launchInfo.groupId !== undefined) {
+		let launchInfo = undefined;
+		try {
+			launchInfo = await api.getLaunchInfo();
+			setFetchedLaunchInfo(launchInfo);
+		} catch (error) {
+			showSnackbar(true, toMsg(error));
+		}
+
+		if (launchInfo !== undefined && launchInfo.groupId !== undefined) {
 			window.onfocus = onRefresh;
 			setActivePanel(Panels.Home);
 			await onRefresh();
@@ -46,20 +52,22 @@ export const App = () => {
 
 	const onRefresh = async () => {
 		setFetching(true);
-		const isMember = await api.isMember();
-		setIsMember(isMember);
-		const isRepost = await api.isRepost();
-		setIsRepost(isRepost);
+		try {
+			const isMember = await api.isMember();
+			setIsMember(isMember);
+			const isRepost = await api.isRepost();
+			setIsRepost(isRepost);
+		} catch (error) {
+			showSnackbar(true, `Не удалось получить данные: ${toMsg(error)}`);
+		}
 		setPopout(null);
 		setFetching(false);
 	}
 
 	const showSnackbar = (isError: boolean, message: string) => {
-		let before = <Icon16CheckCircle className='tool__success'/>;
-		
-		if (isError) {
-			before = <Icon16Clear className='tool__error' />;
-		}
+		const before = isError
+			? <Icon16Clear className='tool__error' />
+			: <Icon16CheckCircle className='tool__success'/>;
 
 		setSnackbar(
 			<Snackbar 
@@ -72,35 +80,9 @@ export const App = () => {
 		);
 	}
 
-	
-	const errorHandler = ({error, critical}: {error: string, critical: boolean}) => {
-		showSnackbar(true, `Ошибка: ${toMsg(error)}`);
-	}
-
-	const listener = (type: string, data: any) => {
-		if (type === 'VKWebAppUpdateConfig') {
-			const schemeAttribute = document.createAttribute('scheme');
-			schemeAttribute.value = data.scheme ? data.scheme : 'client_light';
-			document.body.attributes.setNamedItem(schemeAttribute);
-		}
-		if (type === 'VKWebAppJoinGroupResult') {
-			setIsMember(data.result);
-		}
-		if (type === 'VKWebAppJoinGroupFailed ') {
-			setIsMember(false);
-		}
-	};
-
 	useEffect(() => {
-		api.addListener('event', listener);
-		api.addListener('error', errorHandler);
 		init();
-		return () => {
-			api.removeListener('event', listener);
-			api.removeListener('error', errorHandler);
-			deinit();
-		};
-	// eslint-disable-next-line
+		return () => deinit();
 	}, []);
 
 	const go = (to: Panels) => {
