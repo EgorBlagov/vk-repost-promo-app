@@ -18,10 +18,6 @@
   "author": "Egor Blagov",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.6.2",
-    "@babel/preset-react": "^7.6.3",
-    "@babel/preset-typescript": "^7.6.0",
-    "@babel/runtime": "^7.6.2",
     "@types/express": "^4.17.1",
     "@types/express-session": "^1.15.14",
     "@types/lodash": "^4.14.141",
@@ -30,14 +26,11 @@
     "@types/react-copy-to-clipboard": "^4.3.0",
     "@types/react-dom": "^16.9.1",
     "@types/sqlite3": "^3.1.5",
-    "babel-loader": "^8.0.6",
     "concurrently": "^5.0.0",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
-    "http": "0.0.0",
-    "https": "^1.0.0",
     "nodemon": "^1.19.3",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
@@ -49,6 +42,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "dependencies": {
+    "@babel/runtime": "^7.6.3",
     "@vkontakte/icons": "^1.10.0",
     "@vkontakte/vk-connect": "^1.6.5",
     "@vkontakte/vkui": "^2.31.0",

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { PullToRefresh, Group, List, Button, Cell, Avatar, Div, Spinner, Link } from '@vkontakte/vkui';
-import { Icon16Clear, Icon16CheckCircle } from '../../icons';
+import { Icon16Clear, Icon16CheckCircle } from '../../external';
 
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { api } from '../../logic/api';

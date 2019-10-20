@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import connect from '@vkontakte/vk-connect';
+import { vkConnect } from '../external';
 
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
 import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, IError, ILaunchParams, Errorize } from '../../common/api';
@@ -39,7 +39,7 @@ class Api {
     }
 
     private async obtainToken() {
-        const result = await connect.sendPromise('VKWebAppGetAuthToken', {'app_id': 7153874, 'scope': 'wall,groups'});
+        const result = await vkConnect.sendPromise('VKWebAppGetAuthToken', {'app_id': 7153874, 'scope': 'wall,groups'});
         this.accessToken = result.access_token;
     }
 
@@ -53,7 +53,7 @@ class Api {
             this.inited = true;
         }
 
-        return connect.sendPromise(method, params);
+        return vkConnect.sendPromise(method, params);
     }
 
     async getUserInfo() {
@@ -140,7 +140,7 @@ class Api {
     }
 
     async install() {
-        return connect.sendPromise('VKWebAppAddToCommunity');
+        return vkConnect.sendPromise('VKWebAppAddToCommunity');
     }
 
     async checkWallPost(groupId: number, postId: number): Promise<boolean> {

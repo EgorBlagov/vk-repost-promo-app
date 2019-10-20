@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { Panel, PanelHeader, HeaderButton } from '@vkontakte/vkui';
-import { Icon28Settings } from '../../icons';
+import { Icon28Settings } from '../../external';
 
 import { Repost } from './Repost';
 import { Panels } from '../../logic/navigation';

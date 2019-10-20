@@ -1,11 +1,10 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import connect from '@vkontakte/vk-connect';
+import { vkConnect } from './external';
 
 import { App } from './App';
 
-connect.send('VKWebAppInit');
-
+vkConnect.send('VKWebAppInit');
 ReactDOM.render(
     <App/>,
     document.getElementById("root")

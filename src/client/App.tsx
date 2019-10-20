@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import * as _ from 'lodash';
 
 import { ScreenSpinner, Snackbar, View, Panel } from '@vkontakte/vkui';
-import { Icon16CheckCircle, Icon16Clear } from './icons';
+import { Icon16CheckCircle, Icon16Clear } from './external';
 
 import { api } from './logic/api';
 import { Panels } from './logic/navigation';
