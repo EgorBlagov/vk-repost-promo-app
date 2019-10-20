@@ -8,12 +8,10 @@ services:
       - 15353:80
     networks:
       - back
-    # volumes: 
-    #   - ./nginx-https:/etc/nginx/certs
     depends_on:
       - vk-app
-    # logging:
-    #   driver: none
+    logging:
+      driver: none
 
   vk-app:
     build: .
@@ -24,8 +22,9 @@ services:
       - /usr/src/app/node_modules
     environment:
       - PORT=5000
-    # entrypoint: bash
-    # stdin_open: true
-    # tty: true
+      - VK_KEY=<SPECIFY-ON-DEPLOY>
+    tty: true
+    command: ["npm", "run", "dev:nohot"] 
+
 networks:
   back:  {}
