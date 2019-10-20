@@ -29,7 +29,7 @@ export const Brief = ({id, children, notify}: BriefProps) => {
                     </Div>
                 </Cell>
                 <Cell className='tool__flex'>
-                    <Button onClick={() => api.install().catch(err => notify(toMsg(err), true))}>Установить в сообщество</Button>
+                    <Button onClick={() => api.install().catch(err => notify(`Не удалось установить сервис: ${toMsg(err)}`, true))}>Установить в сообщество</Button>
                 </Cell>
             </List>
         </Group>
