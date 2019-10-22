@@ -7,7 +7,7 @@ import { Panels } from '../../logic/navigation';
 import { ILaunchParams, IGroupConfig } from '../../../common/api';
 import { AdminSettingsButton } from './AdminSettingsButton';
 import { toMsg } from '../../../common/errors';
-import { api } from '../../logic/api';
+import { api, RepostInfo } from '../../logic/api';
 import { SubscribeLine } from './SubscribeLine';
 import { RepostLine } from './RepostLine';
 import { Promocode } from './Promocode';
@@ -24,7 +24,7 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 	const [pullFetching, setPullFetching] = useState<boolean>(false);
 	const [isMember, setIsMember] = useState<boolean>(undefined);
 	const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
-	const [hasRepost, setHasRepost] = useState<boolean>(undefined);
+	const [repostInfo, setRepostInfo] = useState<RepostInfo>(undefined);
 
 	const fetchGroupConfig = async () => {
 		try {
@@ -47,8 +47,8 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 		try {
 			const isMember = await api.isMember(launchInfo.groupId);
 			setIsMember(isMember);
-			const hasRepost = await api.hasRepost(launchInfo.groupId, groupConfig.postId);
-			setHasRepost(hasRepost);
+			const repostInfo = await api.getRepostInfo(launchInfo.groupId, groupConfig.postId);
+			setRepostInfo(repostInfo);
 		} catch (err) {
 			notify(`Не удалось обновить: ${toMsg(err)}`, true);
 		}
@@ -66,6 +66,13 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 		return () => window.removeEventListener('focus', onRefresh);
 	}, [groupConfig])
 
+	const currentSeconds = () => Math.floor(Date.now() / 1000);
+    
+    const getSecondsLeft = (postDate: number): number => {
+        return (postDate + groupConfig.hoursToGet * 60 * 60 - currentSeconds());
+	}
+	
+	const hasRepost = repostInfo && repostInfo.reposted && getSecondsLeft(repostInfo.postDate) <= 0;
 
 	const renderContent = () => {
 		if (groupConfig === undefined) {
@@ -85,13 +92,13 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 						/>
 						<RepostLine
 							groupId={launchInfo.groupId}
-							hasRepost={hasRepost}
+							repostInfo={repostInfo}
 							postId={groupConfig.postId}
-							notify={notify}
+							getSecondsLeft={getSecondsLeft}
 						/>
 					</List>
 				</Group>
-				{isMember && hasRepost && <Group title="Ваш промокод">
+				{isMember && hasRepost && <Group title="Ваш промокод"> 
 					<Promocode
 						groupId={launchInfo.groupId}
 						notify={notify}
@@ -106,5 +113,4 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 		{renderContent()}
 		{children}
 	</Panel>;
-
 }

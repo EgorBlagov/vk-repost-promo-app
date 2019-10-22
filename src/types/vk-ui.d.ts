@@ -6,6 +6,7 @@ import { Spinner, Input } from '@vkontakte/vkui';
 declare module '@vkontakte/vkui/dist/components/Spinner/Spinner' {
     interface SpinnerProps {
         className?: string;
+        style?: React.CSSProperties;
     }
 }
 

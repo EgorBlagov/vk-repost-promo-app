@@ -6,6 +6,13 @@ import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/d
 import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, ILaunchParams, Errorize, IGroupSafeConfig, IGroupSafeConfigResult, IPromocodeResult, IPromocode } from '../../common/api';
 import { toMsg } from '../../common/errors';
 
+export type RepostInfo = {
+    reposted: true;
+    postDate: number;
+} | {
+    reposted: false;
+}
+
 class Api {
     inited: boolean;
     accessToken?: string;
@@ -114,7 +121,7 @@ class Api {
         return _.map(ownedGroups, gr_id => this.groupInfos.get(gr_id));
     }
 
-    async hasRepost(groupId: number, postId: number) {
+    async getRepostInfo(groupId: number, postId: number): Promise<RepostInfo> {
         const userInfo = await this.getUserInfo();
         const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
         {
@@ -126,14 +133,17 @@ class Api {
             }
         });
 
-        const reposted = !_(response.response.items)
-            .map(x => x.copy_history)
-            .filter(x => x !== undefined)
-            .flatten()
-            .filter(x => x.owner_id === -groupId && x.id === postId)
-            .isEmpty();
+        const postDates = _(response.response.items)
+            .filter(x => x.copy_history !== undefined)
+            .filter(x => _.some(x.copy_history, cp => cp.owner_id === -groupId && cp.id === postId))
+            .map(x => x.date)
+            .value();
 
-        return reposted;
+        if (_.isEmpty(postDates)) {
+            return { reposted: false };
+        }
+
+        return { reposted: true, postDate: _.min(postDates) };
     }
 
     async install() {
