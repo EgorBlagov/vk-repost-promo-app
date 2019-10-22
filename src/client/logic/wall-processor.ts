@@ -39,6 +39,10 @@ class WallProcessor {
     public getGroupUrl(groupId: number): string {
         return `https://vk.com/public${groupId}`;
     }
+
+    public getWallUrl(groupId: number): string {
+        return `https://vk.com/wall-${groupId}`;
+    }
 }
 
 export const wallProcessor: WallProcessor = new WallProcessor();

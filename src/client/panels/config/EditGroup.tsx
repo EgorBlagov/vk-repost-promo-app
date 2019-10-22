@@ -24,7 +24,6 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
 
     useEffect(()=> {
         if (config !== undefined) {
-            // TODO: attention here, maybe can cause rewritings
             setPromocode(config.promocode);
             setPostUrl(wallProcessor.generatePostUrl(groupId, config.postId));
             setHours(config.hoursToGet);
@@ -48,7 +47,7 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
     }
 
     if (_.includes([config, promocode, postUrl, hours], undefined)) {
-        return <Spinner className='edit-group__spinner' size="large"/>;
+        return null;
     } else {
         return <FormLayout>
             <EditGroupStatus
@@ -65,7 +64,7 @@ export const EditGroup = ({config, saveGroupParams, reset, groupId, saving}: Edi
             />
             <Input
                 type="text"
-                top={<>URL поста на <Link href={`https://vk.com/wall-${groupId}`} target='_blank'>стене сообщества</Link></>}
+                top={<>URL поста на <Link href={wallProcessor.getWallUrl(groupId)} target='_blank'>стене сообщества</Link></>}
                 status={isPostUrlValid() ? 'valid' : 'error'}
                 value={postUrl}
                 onChange={(e) => setPostUrl(wallProcessor.normalizePostUrl(groupId, e.currentTarget.value))}

@@ -3,11 +3,16 @@ export interface ILaunchParams {
     isAdmin: boolean;
 }
 
-export interface IGroupConfig {
-    promocode: string;
+export interface IGroupSafeConfig {
     postId: number;
     hoursToGet: number;
 }
+
+export interface IPromocode {
+    promocode: string;
+}
+
+export interface IGroupConfig extends IGroupSafeConfig, IPromocode {};
 
 export interface IGroupConfiguredResult {
     isConfigured: boolean;
@@ -15,6 +20,14 @@ export interface IGroupConfiguredResult {
 
 export interface IGroupConfigResult {
     config: IGroupConfig;
+}
+
+export interface IGroupSafeConfigResult {
+    safeConfig: IGroupSafeConfig;
+}
+
+export interface IPromocodeResult {
+    promocode: IPromocode;
 }
 
 export interface IError {

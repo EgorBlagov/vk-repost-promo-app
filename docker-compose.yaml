@@ -10,6 +10,8 @@ services:
       - back
     depends_on:
       - vk-app
+    environment:
+      - PORT=${PORT}
     logging:
       driver: none
 
@@ -21,8 +23,8 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - PORT=5000
-      - VK_KEY=<SPECIFY-ON-DEPLOY>
+      - PORT=${PORT}
+      - VK_KEY=${VK_KEY}
     tty: true
     command: ["npm", "run", "dev:nohot"] 
 

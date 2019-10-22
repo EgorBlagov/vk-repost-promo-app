@@ -19,52 +19,29 @@ import { toMsg } from '../common/errors';
 
 export const App = () => {
 	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);
-	const [popout, setPopout] = useState<React.ReactNode>(<ScreenSpinner size='large' />);
-	const [fetching, setFetching] = useState<boolean>(true);
-	const [fetchedMember, setIsMember] = useState<boolean>(null);
-	const [fetchedRepost, setIsRepost] = useState<boolean>(null);
+	const [isFetching, setIsFetching] = useState<boolean>(true);
 	const [snackbar, setSnackbar] = useState<React.ReactNode>(null);
 	const [fetchedLaunchInfo, setFetchedLaunchInfo] = useState<ILaunchParams>(undefined);
 
 	const init = async () => {
-		let launchInfo = undefined;
 		try {
-			launchInfo = await api.getLaunchInfo();
+			const launchInfo = await api.getLaunchInfo();
 			setFetchedLaunchInfo(launchInfo);
+			if (launchInfo !== undefined && launchInfo.groupId !== undefined) {
+				setActivePanel(Panels.Home);
+			} else {
+				setActivePanel(Panels.Brief);
+			}
+			setIsFetching(false);
 		} catch (error) {
-			showSnackbar(true, toMsg(error));
-		}
-
-		if (launchInfo !== undefined && launchInfo.groupId !== undefined) {
-			window.onfocus = onRefresh;
-			setActivePanel(Panels.Home);
-			await onRefresh();
-		} else {
-			setActivePanel(Panels.Brief);
-			setPopout(null);
-			setFetching(false);
+			showSnackbar(toMsg(error), true);
 		}
 	}
 
 	const deinit = async () => {
-		window.onfocus = undefined;
 	}
 
-	const onRefresh = async () => {
-		setFetching(true);
-		try {
-			const isMember = await api.isMember();
-			setIsMember(isMember);
-			const isRepost = await api.isRepost();
-			setIsRepost(isRepost);
-		} catch (error) {
-			showSnackbar(true, `Не удалось получить данные: ${toMsg(error)}`);
-		}
-		setPopout(null);
-		setFetching(false);
-	}
-
-	const showSnackbar = (isError: boolean, message: string) => {
+	const showSnackbar = (message: string, isError: boolean) => {
 		const before = isError
 			? <Icon16Clear className='tool__error' />
 			: <Icon16CheckCircle className='tool__success'/>;
@@ -91,21 +68,17 @@ export const App = () => {
 	};
 
 	return (
-		<View activePanel={activePanel} popout={popout}>
+		<View activePanel={activePanel} popout={isFetching && <ScreenSpinner size={"large"}/>}>
 			<Panel id={Panels.Empty}/>
 			<Brief id={Panels.Brief}
-				notify={(m, e) => showSnackbar(e, m)}
+				notify={showSnackbar}
 			>
 				{snackbar}
 			</Brief>
 			<Home
 				id={Panels.Home}
 				go={go}
-				isMember={fetchedMember}
-				isReposted={fetchedRepost}
-				fetching={fetching}
-				onRefresh={onRefresh}
-				notify={(m) => showSnackbar(false, m)}
+				notify={showSnackbar}
 				launchInfo={fetchedLaunchInfo}
 			>
 				{snackbar}
@@ -114,7 +87,7 @@ export const App = () => {
 				id={Panels.Configure}
 				go={go}
 				launchInfo={fetchedLaunchInfo}
-				notify={(m, e) => showSnackbar(e, m)}
+				notify={showSnackbar}
 			>
 				{snackbar}
 			</Configuration>

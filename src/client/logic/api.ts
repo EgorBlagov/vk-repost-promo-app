@@ -3,16 +3,13 @@ import * as _ from 'lodash';
 import { vkConnect } from '../external';
 
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, IError, ILaunchParams, Errorize } from '../../common/api';
+import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, ILaunchParams, Errorize, IGroupSafeConfig, IGroupSafeConfigResult, IPromocodeResult, IPromocode } from '../../common/api';
 import { toMsg } from '../../common/errors';
 
 class Api {
     inited: boolean;
     accessToken?: string;
-    groupId: number;
     userInfo?: any;
-    url: string;
-    _postId: number;
     groupInfos: Map<number, any>;
 
     constructor() {
@@ -34,8 +31,8 @@ class Api {
         return Math.random().toString(36).substr(2,15);
     }
 
-    async Subscribe() {
-        return this.invokeOnceReady('VKWebAppJoinGroup', {group_id: this.groupId})
+    async Subscribe(groupId: number) {
+        return this.invokeOnceReady('VKWebAppJoinGroup', {group_id: groupId})
     }
 
     private async obtainToken() {
@@ -64,14 +61,14 @@ class Api {
         return this.userInfo;
     }
 
-    async isMember() {
+    async isMember(groupId: number) {
         const userInfo = await this.getUserInfo();
         const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
             {
                 method: 'groups.isMember',
                 params: {
                     user_id: userInfo.id,
-                    group_id: this.groupId,
+                    group_id: groupId,
                     ...this.commonParams
                 }
             }
@@ -117,7 +114,7 @@ class Api {
         return _.map(ownedGroups, gr_id => this.groupInfos.get(gr_id));
     }
 
-    async isRepost() {
+    async hasRepost(groupId: number, postId: number) {
         const userInfo = await this.getUserInfo();
         const response: any = await this.invokeOnceReady("VKWebAppCallAPIMethod",
         {
@@ -133,7 +130,7 @@ class Api {
             .map(x => x.copy_history)
             .filter(x => x !== undefined)
             .flatten()
-            .filter(x => x.owner_id === -this.groupId && x.id === this._postId)
+            .filter(x => x.owner_id === -groupId && x.id === postId)
             .isEmpty();
 
         return reposted;
@@ -182,6 +179,24 @@ class Api {
             return result.config;
         } catch (error) {
             throw new Error(`Не удалось получить параметры группы: ${toMsg(error)}`);
+        }
+    }
+
+    async getGroupSafeConfig(groupId: number): Promise<IGroupSafeConfig> {
+        try {
+            const result: IGroupSafeConfigResult = await this.request(`/api/groups/${groupId}/safe`);
+            return result.safeConfig;
+        } catch (error) {
+            throw new Error(`Не удалось получить требования группы: ${toMsg(error)}`);
+        }
+    }
+
+    async getPromocode(groupId: number): Promise<IPromocode> {
+        try {
+            const result: IPromocodeResult = await this.request(`/api/groups/${groupId}/promo`);
+            return result.promocode;
+        } catch (error) {
+            throw new Error(`Не удалось получить промокод: ${toMsg(error)}`);
         }
     }
 

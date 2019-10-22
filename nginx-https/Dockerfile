@@ -1,5 +1,4 @@
 FROM nginx
-RUN rm -rf /etc/nginx/conf.d/default.conf
 
 RUN apt-get update && apt-get -y install openssl
 
@@ -20,8 +19,9 @@ RUN echo "server { \
     ssl_certificate_key $KEYPATH; \
     server_name localhost; \
     location / { \
-        proxy_pass http://vk-app:5000/; \
+        proxy_pass http://vk-app:\$PORT/; \
         error_log /var/log/nginx.log; \
     } \
-}" > /etc/nginx/conf.d/nginx.conf
+}" > /etc/nginx/conf.d/nginx.template
 
+CMD /bin/bash -c "envsubst < /etc/nginx/conf.d/nginx.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
