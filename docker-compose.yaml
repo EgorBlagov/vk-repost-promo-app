@@ -1,20 +1,6 @@
 version: '3'
 
 services:
-  nginx: 
-    build: nginx-https
-    ports : 
-      - 15352:443
-      - 15353:80
-    networks:
-      - back
-    depends_on:
-      - vk-app
-    environment:
-      - PORT=${PORT}
-    logging:
-      driver: none
-
   vk-app:
     build: .
     networks:
@@ -22,11 +8,13 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+    ports: 
+      - 15352:15352
     environment:
       - PORT=${PORT}
       - VK_KEY=${VK_KEY}
     tty: true
-    command: ["npm", "run", "dev:nohot"] 
+    command: ["npm", "run", "dev"] 
 
 networks:
   back:  {}

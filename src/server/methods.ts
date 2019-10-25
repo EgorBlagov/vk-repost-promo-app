@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import { IGroupConfig } from '../common/api';
+import { IGroupConfig, VkViewerRole } from '../common/api';
 import { Storage, Sqlite3Storage } from './storage';
 import { toMsg } from '../common/errors';
 
@@ -9,10 +9,10 @@ export const router: express.Router = express.Router();
 
 router.get('/launch_params', (req, res) => {
     res.send({
-        groupId: req.session.params.vk_group_id && parseInt(req.session.params.vk_group_id),
-        isAdmin: req.session.params.vk_viewer_group_role === 'admin'
-    })
-})
+        groupId: req.vkParams.vk_group_id && req.vkParams.vk_group_id,
+        isAdmin: req.vkParams.vk_viewer_group_role === VkViewerRole.admin
+    });
+});
 
 const storage: Storage = new Sqlite3Storage('main.db');
 storage.init();

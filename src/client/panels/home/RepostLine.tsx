@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button, Cell, Link, Div, Spinner } from '@vkontakte/vkui';
 import { wallProcessor } from '../../logic/wall-processor';
 import { StatusIcon } from './StatusIcon';

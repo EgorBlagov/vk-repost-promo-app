@@ -26,13 +26,13 @@ export function toMsg(err: any): string {
     return JSON.stringify(err);
 }
 
-export function sendError(response: Response, message: string, optional?: any): void {
+export function sendError(response: Response, message: string, status: number = 500, optional?: any): void {
     sendErrorImpl(response, {
         error: message,
         ...optional
-    });
+    }, status);
 }
 
-function sendErrorImpl(response: Response, error: IError): void {
-    response.status(500).send(error);
+function sendErrorImpl(response: Response, error: IError, status: number): void {
+    response.status(status).send(error);
 }

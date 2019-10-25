@@ -5,6 +5,7 @@ import { vkConnect } from '../external';
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
 import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, ILaunchParams, Errorize, IGroupSafeConfig, IGroupSafeConfigResult, IPromocodeResult, IPromocode } from '../../common/api';
 import { toMsg } from '../../common/errors';
+import { vkAuthHeaderName, vkApiAuthHeaderName } from '../../common/security';
 
 export type RepostInfo = {
     reposted: true;
@@ -225,9 +226,12 @@ class Api {
     }
 
     private async request<T>(url: string, params?: RequestInit) : Promise<T> {
-        const response = await fetch(url, params);
+        const request = new Request(url, params);
+        request.headers.append(vkAuthHeaderName, window.location.search);
+        request.headers.append(vkApiAuthHeaderName, this.accessToken);
+        const response = await fetch(request);
         const json: Errorize<T> = await response.json();
-        if (response.status === 500) {
+        if (response.status !== 200) {
             throw new Error(toMsg(json.error));
         }
 
