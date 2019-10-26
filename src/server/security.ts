@@ -1,11 +1,12 @@
 import * as qs from 'querystring';
 import * as crypto from 'crypto';
 import * as _ from 'lodash';
+import * as Joi  from '@hapi/joi';
 
 import { Request, NextFunction, Response} from 'express';
 import { sendError, toMsg } from '../common/errors';
 import { vkAuthHeaderName } from '../common/security';
-import { IVkParams, vkParamsSchema } from '../common/api';
+import { IVkParams, VkViewerRole } from '../common/api';
 
 
 declare global {
@@ -15,6 +16,19 @@ declare global {
         }
     }
 }
+
+
+const vkParamsSchema = Joi.object({
+    vk_user_id: Joi.number().required(),
+    vk_app_id: Joi.number().required(),
+    vk_is_app_user: Joi.number().min(0).max(1).required(),
+    vk_are_notifications_enabled: Joi.number().min(0).max(1).required(),
+    vk_access_token_settings: Joi.string().required(),
+    vk_group_id: Joi.number(), 
+    vk_viewer_group_role: Joi.string().valid(VkViewerRole.none, VkViewerRole.admin, VkViewerRole.editor, VkViewerRole.member, VkViewerRole.moder),
+    sign: Joi.string().required()
+}).options({allowUnknown: true});
+
 
 function validate(vkParams: IVkParams): void {
     const ordered: any = {};
