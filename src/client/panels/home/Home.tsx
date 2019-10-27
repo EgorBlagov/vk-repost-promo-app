@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Panel, PanelHeader, PullToRefresh, Group, List, Div } from '@vkontakte/vkui';
 
 import { Panels } from '../../logic/navigation';
-import { ILaunchParams, IGroupConfig } from '../../../common/api';
+import { ILaunchParams, IAdminGroupConfig } from '../../../common/api';
 import { AdminSettingsButton } from './AdminSettingsButton';
 import { toMsg } from '../../../common/errors';
 import { api, RepostInfo } from '../../logic/api';
@@ -23,14 +23,14 @@ export interface HomeProps {
 export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 	const [pullFetching, setPullFetching] = useState<boolean>(false);
 	const [isMember, setIsMember] = useState<boolean>(undefined);
-	const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
+	const [groupConfig, setGroupConfig] = useState<IAdminGroupConfig>(undefined);
 	const [repostInfo, setRepostInfo] = useState<RepostInfo>(undefined);
 
 	const fetchGroupConfig = async () => {
 		try {
             const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
             if (isGroupConfigured) {
-				const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
+				const cfg: IAdminGroupConfig = await api.getGroupConfig(launchInfo.groupId);
 				setGroupConfig(cfg);
             }
         } catch (error) {

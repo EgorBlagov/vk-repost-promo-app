@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react';
 
 import { Button, FormLayout, Input, Div, Spinner, Slider, Link } from '@vkontakte/vkui';
 
-import { IGroupConfig } from '../../../common/api';
+import { IAdminGroupConfig } from '../../../common/api';
 import { wallProcessor } from '../../logic/wall-processor';
 
 import { EditGroupStatus } from './EditGroupStatus';
 
 export interface EditGroupProps {
     groupId: number,
-    config: IGroupConfig;
+    config: IAdminGroupConfig;
     saving: boolean;
-    saveGroupParams: (newCfg: IGroupConfig) => void;
+    saveGroupParams: (newCfg: IAdminGroupConfig) => void;
     reset: () => void;
 }
 

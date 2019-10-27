@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 
-import { IGroupConfig, ILaunchParams } from '../../../common/api';
+import { IAdminGroupConfig, ILaunchParams } from '../../../common/api';
 import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
 import { toMsg } from '../../../common/errors';
@@ -21,7 +21,7 @@ export interface ConfigurationProps {
 }
 
 export const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
-    const [groupConfig, setGroupConfig] = useState<IGroupConfig>(undefined);
+    const [groupConfig, setGroupConfig] = useState<IAdminGroupConfig>(undefined);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const fetchConfigStatus = async () => {
@@ -29,7 +29,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
             const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
 
             if (isGroupConfigured) {
-                const cfg: IGroupConfig = await api.getGroupConfig(launchInfo.groupId);
+                const cfg: IAdminGroupConfig = await api.getGroupConfig(launchInfo.groupId);
                 setGroupConfig(cfg);
             } else {
                 notify(`Промокод в этой группе еще не настроен`, true);
@@ -44,7 +44,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
         }
     }
 
-    const saveGroupParams = async (groupConfig: IGroupConfig) => {
+    const saveGroupParams = async (groupConfig: IAdminGroupConfig) => {
         try {
             setIsSaving(true);
             const postExists = await api.checkWallPost(launchInfo.groupId, groupConfig.postId);
@@ -53,7 +53,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
                 return;
             }
 
-            await api.saveGroupParams(launchInfo.groupId, groupConfig);
+            await api.saveGroupConfig(launchInfo.groupId, groupConfig);
             notify('Сохранено', false);
         } catch (err) {
             notify(`Не удалось сохранить: ${toMsg(err)}`, true);

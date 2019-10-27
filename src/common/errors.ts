@@ -1,5 +1,4 @@
 import { Response } from 'express';
-import { IError } from './api';
 
 export function toMsg(err: any): string {
     if (err.message !== undefined) {
@@ -26,13 +25,6 @@ export function toMsg(err: any): string {
     return JSON.stringify(err);
 }
 
-export function sendError(response: Response, message: string, status: number = 500, optional?: any): void {
-    sendErrorImpl(response, {
-        error: message,
-        ...optional
-    }, status);
-}
-
-function sendErrorImpl(response: Response, error: IError, status: number): void {
-    response.status(status).send(error);
+export function sendError(res: Response, error: string, status: number = 500) {
+    res.status(status).send({ error: toMsg(error)});
 }

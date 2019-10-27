@@ -1,6 +1,6 @@
 import * as sqlite from 'sqlite3';
 import * as _ from 'lodash';
-import { IGroupConfig } from '../common/api';
+import { IAdminGroupConfig } from '../common/api';
 import { toMsg } from '../common/errors';
 
 declare module "sqlite3" {
@@ -11,8 +11,8 @@ declare module "sqlite3" {
 
 export interface Storage {
     isConfigured: (groupId: number) => Promise<boolean>;
-    getConfig: (groupId: number) => Promise<IGroupConfig>;
-    setConfig: (groupId: number, config: IGroupConfig) => Promise<void>;
+    getConfig: (groupId: number) => Promise<IAdminGroupConfig>;
+    setConfig: (groupId: number, config: IAdminGroupConfig) => Promise<void>;
     init: () => void;
     cleanup: () => void;
 }
@@ -90,9 +90,9 @@ export class Sqlite3Storage implements Storage {
         });
     }
 
-    public async getConfig(groupId: number): Promise<IGroupConfig> {
-        return await this.invokeOnDb<IGroupConfig>(async (db) => {
-            return await new Promise<IGroupConfig>((resolve, reject) => {
+    public async getConfig(groupId: number): Promise<IAdminGroupConfig> {
+        return await this.invokeOnDb<IAdminGroupConfig>(async (db) => {
+            return await new Promise<IAdminGroupConfig>((resolve, reject) => {
                 db.serialize(()=>{
                     db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
                         if (err) {
@@ -110,7 +110,7 @@ export class Sqlite3Storage implements Storage {
         });
     }
 
-    public async setConfig(groupId: number, config: IGroupConfig): Promise<void> {
+    public async setConfig(groupId: number, config: IAdminGroupConfig): Promise<void> {
         const isConfigured: boolean = await this.isConfigured(groupId);
         if (isConfigured) {
             return await this.invokeOnDb<void>(async (db) => {
@@ -165,3 +165,7 @@ export class Sqlite3Storage implements Storage {
         }
     }
 }
+
+
+export const storage: Storage = new Sqlite3Storage('main.db');
+storage.init();

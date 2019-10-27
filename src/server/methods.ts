@@ -1,72 +1,42 @@
-import * as express from 'express';
+import { IAdminGroupConfig, VkViewerRole, Methods, ResponseType, GetRequestType, RequestType, MethodDefinitionTypeMap, MethodDefinitionTypes, MethodDefinitionValueMap, MethodDefinitionValues, GetRequestRoute, IResponse } from '../common/api';
+import { RouterEx } from './router-ex';
+import { vkAuthAdminOnlyMiddleware } from './security';
+import { storage } from './storage';
 
-import { IGroupConfig, VkViewerRole } from '../common/api';
-import { Storage, Sqlite3Storage } from './storage';
-import { toMsg } from '../common/errors';
-
-export const router: express.Router = express.Router();
-
-
-router.get('/launch_params', (req, res) => {
-    res.send({
+export const apiRouter: RouterEx = new RouterEx('/api');
+apiRouter.addApiRoute(Methods.LaunchParams, (req, queryParams, requestParams, sendResponse, sendError) => {
+    sendResponse({
         groupId: req.vkParams.vk_group_id && req.vkParams.vk_group_id,
         isAdmin: req.vkParams.vk_viewer_group_role === VkViewerRole.admin
     });
 });
 
-const storage: Storage = new Sqlite3Storage('main.db');
-storage.init();
-
-router.get('/groups/:groupId/available', async (req, res) => {
+const groupsRouter: RouterEx = new RouterEx('/groups', apiRouter);
+groupsRouter.addApiRoute(Methods.IsGroupConfigured, async (req, queryParams, requestParams, sendResponse, sendError) => {
     try {
-        const isConfigured = await storage.isConfigured(parseInt(req.params.groupId));
-        res.send({ isConfigured });
+        const isConfigured = await storage.isConfigured(queryParams.groupId);
+        sendResponse({ isConfigured })
     } catch (err) {
-        res.status(500).send({error: toMsg(err)});
+        sendError(err);
     }
 });
 
-router.get('/groups/:groupId', async (req, res) => {
+const adminGroupsRouter: RouterEx = new RouterEx('/admin/groups', apiRouter);
+adminGroupsRouter.addMiddleware(vkAuthAdminOnlyMiddleware);
+adminGroupsRouter.addApiRoute(Methods.AdminGetGroupConfig, async (req, queryParams, requestParams, sendResponse, sendError) => {
     try {
-        const groupConfig: IGroupConfig = await storage.getConfig(parseInt(req.params.groupId));
-        res.send({config: groupConfig});
+        const groupConfig: IAdminGroupConfig = await storage.getConfig(queryParams.groupId);
+        sendResponse(groupConfig);
     } catch (err) {
-        res.status(500).send({error: toMsg(err)});
+        sendError(err);
     }
-})
+});
 
-router.get('/groups/:groupId/safe', async (req, res) => {
+adminGroupsRouter.addApiRoute(Methods.AdminSetGroupConfig, async (req, queryParams, requestParams, sendResponse, sendError) => {
     try {
-        const groupConfig: IGroupConfig = await storage.getConfig(parseInt(req.params.groupId));
-        res.send({
-            safeConfig: {
-                postId: groupConfig.postId,
-                hoursToGet: groupConfig.hoursToGet
-            }
-        });
+        await storage.setConfig(Number(queryParams.groupId), requestParams);
+        sendResponse({});
     } catch (err) {
-        res.status(500).send({error: toMsg(err)});
-    }
-})
-
-router.get('/groups/:groupId/promo', async (req, res) => {
-    try {
-        const groupConfig: IGroupConfig = await storage.getConfig(parseInt(req.params.groupId));
-        res.send({
-            promocode: {
-                promocode: groupConfig.promocode
-            }
-        });
-    } catch (err) {
-        res.status(500).send({error: toMsg(err)});
-    }
-})
-
-router.put('/groups/:groupId', async (req, res) => {
-    try {
-        await storage.setConfig(parseInt(req.params.groupId), req.body);
-        res.send({});
-    } catch (err) {
-        res.status(500).send({error: toMsg(err)});
+        sendError(err);
     }
 });

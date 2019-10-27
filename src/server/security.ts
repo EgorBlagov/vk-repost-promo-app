@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import * as Joi  from '@hapi/joi';
 
 import { Request, NextFunction, Response} from 'express';
-import { sendError, toMsg } from '../common/errors';
+import { toMsg, sendError } from '../common/errors';
 import { vkAuthHeaderName } from '../common/security';
 import { IVkParams, VkViewerRole } from '../common/api';
 
@@ -69,6 +69,15 @@ export const vkAuthMiddleware = (req: Request, res: Response, next: NextFunction
         validate(req.vkParams);
     } catch (err) {
         sendError(res, `Authorization error: ${toMsg(err)}`, 401);
+        return;
+    }
+
+    next();
+}
+
+export const vkAuthAdminOnlyMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    if (req.vkParams.vk_viewer_group_role !== VkViewerRole.admin) {
+        sendError(res, `Access denied`, 403);
         return;
     }
 

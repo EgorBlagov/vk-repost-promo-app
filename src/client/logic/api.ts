@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import { vkConnect } from '../external';
 
 import { IOMethodName, RequestProps, ReceiveData } from '@vkontakte/vk-connect/dist/types/src/types';
-import { IGroupConfiguredResult, IGroupConfig, IGroupConfigResult, ILaunchParams, Errorize, IGroupSafeConfig, IGroupSafeConfigResult, IPromocodeResult, IPromocode } from '../../common/api';
+import { ILaunchParams, Methods, QueryParams, RequestParams, ResponseType, IResponse, IAdminGroupConfig, RequestType, GetRequestType, GetRequestRoute } from '../../common/api';
 import { toMsg } from '../../common/errors';
 import { vkAuthHeaderName, vkApiAuthHeaderName } from '../../common/security';
 
@@ -167,9 +167,9 @@ class Api {
 
      // Backend calls
 
-     async getLaunchInfo(): Promise<ILaunchParams> {
+    async getLaunchInfo(): Promise<ILaunchParams> {
         try {
-            return await this.request<ILaunchParams>(`/api/launch_params`);
+            return await this.request(Methods.LaunchParams);
         } catch (error) {
             throw new Error(`Не удалось получить параметры запуска: ${toMsg(error)}`);
         }
@@ -177,65 +177,75 @@ class Api {
 
     async isGroupConfigured(groupId: number): Promise<boolean> {
         try {
-            const result: IGroupConfiguredResult = await this.request(`/api/groups/${groupId}/available`);
+            const result = await this.request(Methods.IsGroupConfigured, { groupId });
             return result.isConfigured;
         } catch (error) {
             throw new Error(`Не удалось получить статус конфигурации: ${toMsg(error)}`);
         }
     }
 
-    async getGroupConfig(groupId: number): Promise<IGroupConfig> {
+    async getGroupConfig(groupId: number): Promise<IAdminGroupConfig> {
         try {
-            const result: IGroupConfigResult = await this.request(`/api/groups/${groupId}`);
-            return result.config;
+            const result = await this.request(Methods.AdminGetGroupConfig, { groupId });
+            return result;
         } catch (error) {
             throw new Error(`Не удалось получить параметры группы: ${toMsg(error)}`);
         }
     }
 
-    async getGroupSafeConfig(groupId: number): Promise<IGroupSafeConfig> {
+    async saveGroupConfig(groupId: number, groupConfig: IAdminGroupConfig): Promise<void> {
         try {
-            const result: IGroupSafeConfigResult = await this.request(`/api/groups/${groupId}/safe`);
-            return result.safeConfig;
-        } catch (error) {
-            throw new Error(`Не удалось получить требования группы: ${toMsg(error)}`);
-        }
-    }
-
-    async getPromocode(groupId: number): Promise<IPromocode> {
-        try {
-            const result: IPromocodeResult = await this.request(`/api/groups/${groupId}/promo`);
-            return result.promocode;
-        } catch (error) {
-            throw new Error(`Не удалось получить промокод: ${toMsg(error)}`);
-        }
-    }
-
-    async saveGroupParams(groupId: number, groupConfig: IGroupConfig): Promise<void> {
-        try {
-            await this.request(`/api/groups/${groupId}`, {
-                method: 'PUT',
-                body: JSON.stringify(groupConfig),
-                headers: new Headers({
-                    'Content-Type': 'application/json'
-                })
-            });
+            await this.request(Methods.AdminSetGroupConfig, { groupId }, groupConfig);
         } catch (error) {
             throw new Error(`Не удалось сохранить параметры группы: ${toMsg(error)}`);
         }
     }
 
-    private async request<T>(url: string, params?: RequestInit) : Promise<T> {
-        const request = new Request(url, params);
-        request.headers.append(vkAuthHeaderName, window.location.search);
-        request.headers.append(vkApiAuthHeaderName, this.accessToken);
+    private async request<T extends Methods>(methodType: T, queryParams: QueryParams<T> = {}, params: RequestParams<T> = {}): Promise<ResponseType<T>> {
+        let request = this.createRequest(methodType, queryParams, params);
+        this.injectVkHeaders(request);
+
         const response = await fetch(request);
-        const json: Errorize<T> = await response.json();
+        const json: IResponse<ResponseType<T>> = await response.json();
+
         if (response.status !== 200) {
             throw new Error(toMsg(json.error));
         }
 
-        return json;
+        return json.result;
+    }
+        
+    private injectVkHeaders(r: Request): void {
+        r.headers.append(vkAuthHeaderName, window.location.search);
+        r.headers.append(vkApiAuthHeaderName, this.accessToken);
+    }
+
+    private getUrl<T extends Methods>(methodType: T, queryParams: QueryParams<T>): string {
+        let url = GetRequestRoute(methodType);
+        _(queryParams).keys().each(key => {
+            url = url.replace(`:${key}`, (queryParams as any)[key])
+        });
+    
+        return url;
+    }
+    
+    private getRequestInit<T extends Methods>(methodType: T, params: RequestParams<T>): RequestInit {
+        const result: RequestInit = {
+            method: GetRequestType(methodType)
+        };
+    
+        if (result.method === RequestType.PUT) {
+            result.body = JSON.stringify(params);
+            result.headers = new Headers({'Content-Type': 'application/json'});
+        }
+    
+        return result;
+    }
+    
+    private createRequest<T extends Methods>(methodType: T, queryParams: QueryParams<T>, params: RequestParams<T>): Request {
+        const url: string = this.getUrl(methodType, queryParams);
+        const requestInit: RequestInit = this.getRequestInit(methodType, params);
+        return new Request(url, requestInit);
     }
 }
 
