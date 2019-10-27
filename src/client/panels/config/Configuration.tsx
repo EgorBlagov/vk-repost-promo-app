@@ -36,7 +36,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
                 setGroupConfig({
                     hoursToGet: 0,
                     postId: 0,
-                    promocode: undefined
+                    promocode: 'Введите промокод'
                 });
             }
         } catch (error) {
