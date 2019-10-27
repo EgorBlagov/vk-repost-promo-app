@@ -3,16 +3,18 @@ import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import * as Joi  from '@hapi/joi';
 
-import { Request, NextFunction, Response} from 'express';
+import { Request, NextFunction, Response, RequestHandler} from 'express';
 import { toMsg, sendError } from '../common/errors';
-import { vkAuthHeaderName } from '../common/security';
-import { IVkParams, VkViewerRole } from '../common/api';
+import { vkAuthHeaderName, vkApiAuthHeaderName } from '../common/security';
+import { IVkParams, VkViewerRole } from '../common/types';
+import { isOk } from '../common/utils';
 
 
 declare global {
     namespace Express {
         interface Request {
             vkParams?: IVkParams;
+            vkToken?: string;
         }
     }
 }
@@ -75,9 +77,28 @@ export const vkAuthMiddleware = (req: Request, res: Response, next: NextFunction
     next();
 }
 
+export const vkApiAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    if (!isOk(req.get(vkApiAuthHeaderName))) {
+        sendError(res, "Authorization error: API token not specified", 401);
+        return;
+    }
+    
+    req.vkToken = req.get(vkApiAuthHeaderName);
+    next();
+}
+
 export const vkAuthAdminOnlyMiddleware = (req: Request, res: Response, next: NextFunction) => {
     if (req.vkParams.vk_viewer_group_role !== VkViewerRole.admin) {
-        sendError(res, `Access denied`, 403);
+        sendError(res, "Access denied", 403);
+        return;
+    }
+
+    next();
+}
+
+export const vkFromGroupOnlyMiddleware = (req: Request, res: Response, next: NextFunction) => {
+    if (req.vkParams.vk_group_id === undefined) {
+        sendError(res, "Should be called from Group");
         return;
     }
 

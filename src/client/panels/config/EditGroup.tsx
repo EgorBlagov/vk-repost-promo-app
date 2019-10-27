@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 import { Button, FormLayout, Input, Div, Spinner, Slider, Link } from '@vkontakte/vkui';
 
-import { IAdminGroupConfig } from '../../../common/api';
+import { IAdminGroupConfig } from '../../../common/types';
 import { wallProcessor } from '../../logic/wall-processor';
 
 import { EditGroupStatus } from './EditGroupStatus';

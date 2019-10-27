@@ -13,6 +13,7 @@ services:
     environment:
       - PORT=${PORT}
       - VK_KEY=${VK_KEY}
+      - APP_ID=${APP_ID}
     tty: true
     command: ["npm", "run", "dev"] 
 

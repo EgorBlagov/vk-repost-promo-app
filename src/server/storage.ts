@@ -1,6 +1,6 @@
 import * as sqlite from 'sqlite3';
 import * as _ from 'lodash';
-import { IAdminGroupConfig } from '../common/api';
+import { IAdminGroupConfig, IPromocode, IGroupRequirement } from '../common/types';
 import { toMsg } from '../common/errors';
 
 declare module "sqlite3" {
@@ -12,6 +12,8 @@ declare module "sqlite3" {
 export interface Storage {
     isConfigured: (groupId: number) => Promise<boolean>;
     getConfig: (groupId: number) => Promise<IAdminGroupConfig>;
+    getGroupRequirement: (groupId: number) => Promise<IGroupRequirement>;
+    getPromocode: (groupId: number) => Promise<IPromocode>;
     setConfig: (groupId: number, config: IAdminGroupConfig) => Promise<void>;
     init: () => void;
     cleanup: () => void;
@@ -145,8 +147,45 @@ export class Sqlite3Storage implements Storage {
                 })
             })
         }
-    }   
-    
+    }
+
+    public async getGroupRequirement(groupId: number): Promise<IGroupRequirement> {
+        return await this.invokeOnDb<IGroupRequirement>(async (db) => {
+            return await new Promise<IGroupRequirement>((resolve, reject) => {
+                db.serialize(()=>{
+                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
+                        if (err) {
+                            reject(err.message);
+                        } else {
+                            resolve({
+                                hoursToGet: row.HOURS,
+                                postId: row.POST_ID
+                            });
+                        }
+                    });
+                })
+            })
+        });
+    }
+
+    public async getPromocode(groupId: number): Promise<IPromocode> {
+        return await this.invokeOnDb<IPromocode>(async (db) => {
+            return await new Promise<IPromocode>((resolve, reject) => {
+                db.serialize(()=>{
+                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
+                        if (err) {
+                            reject(err.message);
+                        } else {
+                            resolve({
+                                promocode: row.PROMOCODE
+                            });
+                        }
+                    });
+                })
+            })
+        });
+    }
+
     private async invokeOnDb<T>(call: (db: sqlite.Database) => Promise<T>): Promise<T> {
         if (!this.connected) {
             throw new Error('Database is not connected');

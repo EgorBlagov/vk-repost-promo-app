@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 
-import { IAdminGroupConfig, ILaunchParams } from '../../../common/api';
+import { IAdminGroupConfig, ILaunchParams } from '../../../common/types';
 import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
 import { toMsg } from '../../../common/errors';
@@ -26,10 +26,10 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
 
     const fetchConfigStatus = async () => {
         try {
-            const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
+            const isGroupConfigured: boolean = await api.isGroupConfigured();
 
             if (isGroupConfigured) {
-                const cfg: IAdminGroupConfig = await api.getGroupConfig(launchInfo.groupId);
+                const cfg: IAdminGroupConfig = await api.getGroupConfig();
                 setGroupConfig(cfg);
             } else {
                 notify(`Промокод в этой группе еще не настроен`, true);
@@ -53,7 +53,7 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
                 return;
             }
 
-            await api.saveGroupConfig(launchInfo.groupId, groupConfig);
+            await api.saveGroupConfig(groupConfig);
             notify('Сохранено', false);
         } catch (err) {
             notify(`Не удалось сохранить: ${toMsg(err)}`, true);

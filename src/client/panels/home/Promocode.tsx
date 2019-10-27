@@ -7,17 +7,16 @@ import { toMsg } from '../../../common/errors';
 
 interface IProps {
     notify: (msg: string, isError: boolean) => void;
-    groupId: number;
 }
 
-export const Promocode = ({ groupId, notify }: IProps) => {
+export const Promocode = ({ notify }: IProps) => {
     const [promocode, setPromocode] = useState<string>(undefined);
     const copyButton = <CopyToClipboard text={promocode}>
         <Button size="m" onClick={() => notify('Скопировано', false)}>Скопировать</Button>
     </CopyToClipboard>
 
     useEffect(() => {
-        api.getPromocode(groupId)
+        api.getPromocode()
             .then(res => setPromocode(res.promocode))
             .catch(err => notify(toMsg(err), true));
     }, []);

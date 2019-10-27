@@ -10,7 +10,7 @@ import { Icon16CheckCircle, Icon16Clear } from './external';
 
 import { api } from './logic/api';
 import { Panels } from './logic/navigation';
-import { ILaunchParams } from '../common/api';
+import { ILaunchParams } from '../common/types';
 
 import { Brief } from './panels/brief/Brief';
 import { Configuration } from './panels/config/Configuration';

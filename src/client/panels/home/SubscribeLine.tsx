@@ -9,11 +9,13 @@ interface IProps {
     isMember: boolean;
     groupId: number;
     notify: (msg: string, isErrror: boolean) => void;
+    onRefresh: () => void;
 }
 
-export const SubscribeLine = ({ isMember, groupId, notify }: IProps) => {
+export const SubscribeLine = ({ isMember, groupId, notify, onRefresh }: IProps) => {
     const onClickSubscribe = () => {
         api.Subscribe(groupId)
+            .then(onRefresh)
             .catch(err => notify(`Не удалось подписаться: ${toMsg(err)}`, true));
     }
 

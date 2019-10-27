@@ -1,16 +1,18 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 
-import { Panel, PanelHeader, PullToRefresh, Group, List, Div } from '@vkontakte/vkui';
+import { Panel, PanelHeader, PullToRefresh, Group, List, Div, Cell, Button } from '@vkontakte/vkui';
 
 import { Panels } from '../../logic/navigation';
-import { ILaunchParams, IAdminGroupConfig } from '../../../common/api';
+import { ILaunchParams, IUserStatus, IGroupRequirement } from '../../../common/types';
 import { AdminSettingsButton } from './AdminSettingsButton';
 import { toMsg } from '../../../common/errors';
-import { api, RepostInfo } from '../../logic/api';
+import { api } from '../../logic/api';
 import { SubscribeLine } from './SubscribeLine';
 import { RepostLine } from './RepostLine';
 import { Promocode } from './Promocode';
+import { TimeProcessor } from '../../../common/time-processor';
+import { safeGet, isOk } from '../../../common/utils';
 
 export interface HomeProps {
 	id: Panels;
@@ -22,33 +24,43 @@ export interface HomeProps {
 
 export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 	const [pullFetching, setPullFetching] = useState<boolean>(false);
-	const [isMember, setIsMember] = useState<boolean>(undefined);
-	const [groupConfig, setGroupConfig] = useState<IAdminGroupConfig>(undefined);
-	const [repostInfo, setRepostInfo] = useState<RepostInfo>(undefined);
+	const [groupRequirement, setGroupRequirement] = useState<IGroupRequirement>(undefined);
+	const [userStatus, setUserStatus] = useState<IUserStatus>(undefined);
+	const [tokenReceived, setTokenReceived] = useState<boolean>(false);
 
 	const fetchGroupConfig = async () => {
 		try {
-            const isGroupConfigured: boolean = await api.isGroupConfigured(launchInfo.groupId);
+            const isGroupConfigured: boolean = await api.isGroupConfigured();
             if (isGroupConfigured) {
-				const cfg: IAdminGroupConfig = await api.getGroupConfig(launchInfo.groupId);
-				setGroupConfig(cfg);
+				const cfg = await api.getGroupRequirement();
+				setGroupRequirement(cfg);
             }
         } catch (error) {
             notify(`Не удалось получить параметры: ${toMsg(error)}`, true);
         }
 	}
 
+	const tryAuthorize = () => {
+		const call = async () => {
+			if (!api.hasToken) {
+				await api.obtainToken();
+			}
+
+			setTokenReceived(api.hasToken);
+		}
+
+		call().catch(err => `Не удалось получить доступ: ${toMsg(err)}`);
+	}
+
 	const onRefresh = async () => {
-		if (groupConfig === undefined || launchInfo === undefined) {
+		if (!isOk(groupRequirement) || !isOk(launchInfo) || !tokenReceived) {
 			return;
 		}
 
 		setPullFetching(true);
 		try {
-			const isMember = await api.isMember(launchInfo.groupId);
-			setIsMember(isMember);
-			const repostInfo = await api.getRepostInfo(launchInfo.groupId, groupConfig.postId);
-			setRepostInfo(repostInfo);
+			const status = await api.getUserStatus();
+			setUserStatus(status);
 		} catch (err) {
 			notify(`Не удалось обновить: ${toMsg(err)}`, true);
 		}
@@ -57,6 +69,7 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 	}
 
 	useEffect(() => {
+		tryAuthorize();
 		fetchGroupConfig()
 	}, []);
 
@@ -64,18 +77,20 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 		window.addEventListener('focus', onRefresh);
 		onRefresh();
 		return () => window.removeEventListener('focus', onRefresh);
-	}, [groupConfig])
+	}, [groupRequirement, tokenReceived])
 
-	const currentSeconds = () => Math.floor(Date.now() / 1000);
-    
-    const getSecondsLeft = (postDate: number): number => {
-        return (postDate + groupConfig.hoursToGet * 60 * 60 - currentSeconds());
-	}
-	
-	const hasRepost = repostInfo && repostInfo.reposted && getSecondsLeft(repostInfo.postDate) <= 0;
 
+	const hasRepost = userStatus && userStatus.repost.reposted && TimeProcessor.isTimePassed(userStatus.repost.postDate, groupRequirement.hoursToGet);
 	const renderContent = () => {
-		if (groupConfig === undefined) {
+		if (!tokenReceived) {
+			return <Group>
+				<Cell asideContent={<Button onClick={() => tryAuthorize()}>Авторизация</Button>}>
+					Приложению необходим доступ для работы
+				</Cell>
+			</Group>
+		}
+
+		if (groupRequirement === undefined) {
 			return <Group>
 				<Div className='tool__error'>
 					Администратор еще не настроил приложение в сообществе
@@ -87,20 +102,20 @@ export const Home = ({ id, go, launchInfo, notify, children}: HomeProps) => {
 					<List>
 						<SubscribeLine
 							groupId={launchInfo.groupId}
-							isMember={isMember}
+							isMember={safeGet(userStatus, u => u.member)}
 							notify={notify}
+							onRefresh={onRefresh}
 						/>
 						<RepostLine
 							groupId={launchInfo.groupId}
-							repostInfo={repostInfo}
-							postId={groupConfig.postId}
-							getSecondsLeft={getSecondsLeft}
+							repostInfo={safeGet(userStatus, u => u.repost)}
+							postId={groupRequirement.postId}
+							hoursToGet={groupRequirement.hoursToGet}
 						/>
 					</List>
 				</Group>
-				{isMember && hasRepost && <Group title="Ваш промокод"> 
+				{safeGet(userStatus, u => u.member) && hasRepost && <Group title="Ваш промокод"> 
 					<Promocode
-						groupId={launchInfo.groupId}
 						notify={notify}
 					/>
 				</Group>}

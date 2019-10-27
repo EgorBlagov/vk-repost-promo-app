@@ -3,43 +3,23 @@ import { useState } from 'react';
 import { Button, Cell, Link, Div, Spinner } from '@vkontakte/vkui';
 import { wallProcessor } from '../../logic/wall-processor';
 import { StatusIcon } from './StatusIcon';
-import { RepostInfo } from '../../logic/api';
 import { useInterval } from '../../logic/useInterval';
+import { TimeProcessor } from '../../../common/time-processor';
+import { TRepostInfo } from '../../../common/types';
 
 interface IProps {
-    repostInfo: RepostInfo;
+    repostInfo: TRepostInfo;
     groupId: number;
     postId: number;
-    getSecondsLeft: (postDate: number) => number;
+    hoursToGet: number;
 }
 
-export const RepostLine = ({ repostInfo, groupId, postId, getSecondsLeft }: IProps) => {
-    const [secondsLeft, setSecondsLeft] = useState<number>(undefined);
-
-    const formatTime = (sec: number): string => {
-        const hours: number = Math.floor(sec / 3600);
-        const minutes: number = Math.floor((sec - (hours * 3600)) / 60);
-        const seconds: number = sec - (hours * 3600) - (minutes * 60);
-
-        let hoursS: string = hours.toString();
-        let minutesS: string = minutes.toString();
-        let secondsS: string = seconds.toString();
-
-        if (hours < 10) {
-            hoursS = `0${hours}`;
-        }
-        if (minutes < 10) {
-            minutesS = `0${minutes}`;
-        }
-        if (seconds < 10) {
-            secondsS = `0${seconds}`;
-        }
-        return `${hoursS}:${minutesS}:${secondsS}`;
-    }
+export const RepostLine = ({ repostInfo, groupId, postId, hoursToGet }: IProps) => {
+    const [secondsLeft, setSecondsLeft] = useState<string>(undefined);
 
     useInterval(() => {
-        if (repostInfo && repostInfo.reposted && getSecondsLeft(repostInfo.postDate) > 0) {
-            setSecondsLeft(getSecondsLeft(repostInfo.postDate));
+        if (repostInfo && repostInfo.reposted && !TimeProcessor.isTimePassed(repostInfo.postDate, hoursToGet)) {
+            setSecondsLeft(TimeProcessor.getTimeLeft(repostInfo.postDate, hoursToGet));
         }
     }, 1000);
 
@@ -53,8 +33,8 @@ export const RepostLine = ({ repostInfo, groupId, postId, getSecondsLeft }: IPro
                 <Button component="a" size="m" href={wallProcessor.generatePostUrl(groupId, postId)} target="_blank">Открыть</Button>
             </div>
         } else {
-            if (getSecondsLeft(repostInfo.postDate) > 0) {
-                const seconds = !!secondsLeft ? formatTime(secondsLeft) : <Spinner style={{marginLeft: '10px'}} size='small'/>;
+            if (!TimeProcessor.isTimePassed(repostInfo.postDate, hoursToGet)) {
+                const seconds = !!secondsLeft ? secondsLeft : <Spinner style={{marginLeft: '10px'}} size='small'/>;
                 return <Div style={{display: 'flex', alignItems: 'center', padding: '0px'}}>осталось {seconds} </Div>;
             } else {
                 return null;
@@ -63,7 +43,7 @@ export const RepostLine = ({ repostInfo, groupId, postId, getSecondsLeft }: IPro
     }
 
     return <Cell
-        before={<StatusIcon isOk={repostInfo && repostInfo.reposted && getSecondsLeft(repostInfo.postDate) <= 0} />}
+        before={<StatusIcon isOk={repostInfo && repostInfo.reposted && TimeProcessor.isTimePassed(repostInfo.postDate, hoursToGet)} />}
         asideContent={renderAside()}
         multiline
     >

@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Joi = require('@hapi/joi');
+import * as Joi from '@hapi/joi';
 
 export interface ILaunchParams {
     groupId?: number;
@@ -11,6 +11,18 @@ export interface IGroupRequirement {
     hoursToGet: number;
 }
 
+export type TRepostInfo = {
+    reposted: true;
+    postDate: number;
+} | {
+    reposted: false;
+}
+
+export interface IUserStatus {
+    member: boolean;
+    repost: TRepostInfo;
+}
+
 export interface IPromocode {
     promocode: string;
 }
@@ -19,7 +31,8 @@ export interface IAdminGroupConfigured {
     isConfigured: boolean;
 }
 
-export interface IAdminGroupConfig extends IGroupRequirement, IPromocode {};
+export interface IAdminGroupConfig extends IGroupRequirement, IPromocode {
+};
 
 export interface IResponse<T> extends Partial<IError> {
     result?: T;
@@ -50,8 +63,11 @@ export interface IVkParams {
 }
 
 export enum Methods {
-    LaunchParams,
+    GetLaunchParams,
     IsGroupConfigured,
+    GetGroupRequirement,
+    GetUserStatus,
+    GetUserPromocode,
     AdminGetGroupConfig,
     AdminSetGroupConfig
 }
@@ -74,48 +90,78 @@ export enum RequestType {
 }
 
 export type MethodDefinitionTypeMap = {
-    [Methods.LaunchParams] : {
+    [Methods.GetLaunchParams]: {
         [MethodDefinitionTypes.QueryParams]: {},
         [MethodDefinitionTypes.RequestParams]: {},
         [MethodDefinitionTypes.ResponseType]: ILaunchParams,
     },
-    [Methods.IsGroupConfigured] : {
-        [MethodDefinitionTypes.QueryParams]: { groupId: number },
+    [Methods.IsGroupConfigured]: {
+        [MethodDefinitionTypes.QueryParams]: {},
         [MethodDefinitionTypes.RequestParams]: {},
         [MethodDefinitionTypes.ResponseType]: IAdminGroupConfigured,
     },
-    [Methods.AdminGetGroupConfig] : {
-        [MethodDefinitionTypes.QueryParams]: { groupId: number },
+    [Methods.GetGroupRequirement]: {
+        [MethodDefinitionTypes.QueryParams]: {},
+        [MethodDefinitionTypes.RequestParams]: {},
+        [MethodDefinitionTypes.ResponseType]: IGroupRequirement
+    },
+    [Methods.GetUserStatus]: {
+        [MethodDefinitionTypes.QueryParams]: {},
+        [MethodDefinitionTypes.RequestParams]: {},
+        [MethodDefinitionTypes.ResponseType]: IUserStatus
+    },
+    [Methods.GetUserPromocode]: {
+        [MethodDefinitionTypes.QueryParams]: {},
+        [MethodDefinitionTypes.RequestParams]: {},
+        [MethodDefinitionTypes.ResponseType]: IPromocode
+    },
+    [Methods.AdminGetGroupConfig]: {
+        [MethodDefinitionTypes.QueryParams]: {},
         [MethodDefinitionTypes.RequestParams]: {},
         [MethodDefinitionTypes.ResponseType]: IAdminGroupConfig,
     },
-    [Methods.AdminSetGroupConfig] : {
-        [MethodDefinitionTypes.QueryParams]: { groupId: number },
+    [Methods.AdminSetGroupConfig]: {
+        [MethodDefinitionTypes.QueryParams]: {},
         [MethodDefinitionTypes.RequestParams]: IAdminGroupConfig,
         [MethodDefinitionTypes.ResponseType]: {},
     }
 }
 
 export const MethodDefinitionValueMap = {
-    [Methods.LaunchParams]: {
+    [Methods.GetLaunchParams]: {
         [MethodDefinitionValues.Route]: '/api/launch_params',
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.IsGroupConfigured]: {
-        [MethodDefinitionValues.Route]: '/api/groups/:groupId/available',
+        [MethodDefinitionValues.Route]: '/api/group/available',
         [MethodDefinitionValues.Type]: RequestType.GET,
-        [MethodDefinitionValues.QueryParamsSchema]: {groupId: Joi.number().required()},
+        [MethodDefinitionValues.QueryParamsSchema]: {},
+    },
+    [Methods.GetGroupRequirement]: {
+        [MethodDefinitionValues.Route]: '/api/group/requirement',
+        [MethodDefinitionValues.Type]: RequestType.GET,
+        [MethodDefinitionValues.QueryParamsSchema]: {},
+    },
+    [Methods.GetUserStatus]: {
+        [MethodDefinitionValues.Route]: '/api/group/user/status',
+        [MethodDefinitionValues.Type]: RequestType.GET,
+        [MethodDefinitionValues.QueryParamsSchema]: {},
+    },
+    [Methods.GetUserPromocode]: {
+        [MethodDefinitionValues.Route]: '/api/group/user/promocode',
+        [MethodDefinitionValues.Type]: RequestType.GET,
+        [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.AdminGetGroupConfig]: {
-        [MethodDefinitionValues.Route]: '/api/admin/groups/:groupId',
+        [MethodDefinitionValues.Route]: '/api/group/admin/config',
         [MethodDefinitionValues.Type]: RequestType.GET,
-        [MethodDefinitionValues.QueryParamsSchema]:{groupId: Joi.number().required()},
+        [MethodDefinitionValues.QueryParamsSchema]:{},
     },
     [Methods.AdminSetGroupConfig]: {
-        [MethodDefinitionValues.Route]: '/api/admin/groups/:groupId',
+        [MethodDefinitionValues.Route]: '/api/group/admin/config',
         [MethodDefinitionValues.Type]: RequestType.PUT,
-        [MethodDefinitionValues.QueryParamsSchema]: {groupId: Joi.number().required()},
+        [MethodDefinitionValues.QueryParamsSchema]: {},
     }
 }
 
