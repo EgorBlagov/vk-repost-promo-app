@@ -3,6 +3,7 @@
         "target": "es6",
         "module": "commonjs",
         "noImplicitAny": true,
+        "noUnusedParameters": true,
         "removeComments": true,
         "sourceMap": true,
         "jsx": "react"
