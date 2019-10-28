@@ -1,7 +1,8 @@
 import * as express from 'express';
 import * as Joi from '@hapi/joi';
 
-import { RequestType, Methods, GetRequestType, GetRequestRoute, IResponse, ResponseType, QueryParams, RequestParams, GetQueryParamsSchema } from "../common/types";
+import { IResponse } from "../common/types";
+import { RequestType, Methods, GetRequestType, GetRequestRoute, ResponseType, QueryParams, RequestParams, GetQueryParamsSchema } from '../common/api-declaration';
 import { toMsg } from '../common/utils';
 
 type RouterMethodTypes = "get" | "put";

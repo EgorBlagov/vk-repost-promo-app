@@ -1,10 +1,11 @@
 import * as _ from 'lodash';
-import { IAdminGroupConfig, VkViewerRole, Methods } from '../common/types';
+import { IAdminGroupConfig, VkViewerRole } from '../common/types';
 import { RouterEx } from './router-ex';
 import { vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware, vkApiAuthMiddleware } from './security';
 import { storage } from './storage';
 import { vkApi } from './vk';
 import { PromocodeProcessor } from './promocode-processor';
+import { Methods } from '../common/api-declaration';
 
 export const apiRouter: RouterEx = new RouterEx('/api');
 apiRouter.addApiRoute(Methods.GetLaunchParams, (req, queryParams, requestParams, sendResponse, sendError) => {

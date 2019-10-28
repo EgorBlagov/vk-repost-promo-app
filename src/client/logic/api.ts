@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import { vkConnect } from '../external';
-import { ILaunchParams, Methods, QueryParams, RequestParams, ResponseType, IResponse, IAdminGroupConfig, RequestType, GetRequestType, GetRequestRoute, IGroupRequirement, TRepostInfo, IUserStatus, IPromocode } from '../../common/types';
+import { ILaunchParams, IResponse, IAdminGroupConfig, IGroupRequirement, TRepostInfo, IUserStatus, IPromocode } from '../../common/types';
+import { Methods, QueryParams, RequestParams, ResponseType, RequestType, GetRequestType, GetRequestRoute } from '../../common/api-declaration';
 import { toMsg } from '../../common/utils';
 import { vkAuthHeaderName, vkApiAuthHeaderName } from '../../common/security';
 import { isOk } from '../../common/utils';
