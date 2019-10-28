@@ -8,7 +8,7 @@ import { toMsg } from '../common/utils';
 import { vkAuthHeaderName, vkApiAuthHeaderName } from '../common/security';
 import { IVkParams, VkViewerRole } from '../common/types';
 import { isOk } from '../common/utils';
-import { sendError } from '../common/errors';
+import { sendError } from './utils';
 
 
 declare global {
