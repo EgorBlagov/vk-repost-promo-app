@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button, Cell, Link, Div, Spinner } from '@vkontakte/vkui';
 import { wallProcessor } from '../../logic/wall-processor';
 import { StatusIcon } from './StatusIcon';
-import { useInterval } from '../../logic/useInterval';
+import { useInterval } from '../../logic/hooks';
 import { TimeProcessor } from '../../../common/time-processor';
 import { TRepostInfo } from '../../../common/types';
 
