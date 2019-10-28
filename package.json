@@ -48,7 +48,6 @@
     "@types/source-map-support": "^0.5.0",
     "@vkontakte/icons": "^1.10.0",
     "@vkontakte/vk-connect": "^1.6.5",
-    "@vkontakte/vk-mini-apps-api": "0.0.5",
     "@vkontakte/vkui": "^2.31.0",
     "axios": "^0.19.0",
     "express": "^4.17.1",
