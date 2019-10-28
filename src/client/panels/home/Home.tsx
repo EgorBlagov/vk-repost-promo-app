@@ -6,7 +6,7 @@ import { Panel, PanelHeader, PullToRefresh, Group, List, Div, Cell, Button } fro
 import { Panels } from '../../logic/navigation';
 import { ILaunchParams, IUserStatus, IGroupRequirement } from '../../../common/types';
 import { AdminSettingsButton } from './AdminSettingsButton';
-import { toMsg } from '../../../common/errors';
+import { toMsg } from '../../../common/utils';
 import { api } from '../../logic/api';
 import { SubscribeLine } from './SubscribeLine';
 import { RepostLine } from './RepostLine';

@@ -7,7 +7,7 @@ import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
 import { IAdminGroupConfig, ILaunchParams } from '../../../common/types';
 import { api } from '../../logic/api';
 import { Panels } from '../../logic/navigation';
-import { toMsg } from '../../../common/errors';
+import { toMsg } from '../../../common/utils';
 
 import { CrossPlatformBack } from '../../utils/CrossPlatformBack';
 import { EditGroup } from './EditGroup';

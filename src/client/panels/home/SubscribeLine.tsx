@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Cell, Button, Link } from '@vkontakte/vkui';
 import { StatusIcon } from './StatusIcon';
 import { api } from '../../logic/api';
-import { toMsg } from '../../../common/errors';
+import { toMsg } from '../../../common/utils';
 import { wallProcessor } from '../../logic/wall-processor';
 
 interface IProps {

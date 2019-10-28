@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { Cell, Div, Spinner, Button } from '@vkontakte/vkui';
 import * as CopyToClipboard from 'react-copy-to-clipboard';
 import { api } from '../../logic/api';
-import { toMsg } from '../../../common/errors';
+import { toMsg } from '../../../common/utils';
 
 interface IProps {
     notify: (msg: string, isError: boolean) => void;

@@ -1,7 +1,7 @@
 import * as sqlite from 'sqlite3';
 import * as _ from 'lodash';
 import { IAdminGroupConfig, IPromocode, IGroupRequirement } from '../common/types';
-import { toMsg } from '../common/errors';
+import { toMsg } from '../common/utils';
 
 declare module "sqlite3" {
     interface Database {

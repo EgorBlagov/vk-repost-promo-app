@@ -15,7 +15,7 @@ import { ILaunchParams } from '../common/types';
 import { Brief } from './panels/brief/Brief';
 import { Configuration } from './panels/config/Configuration';
 import { Home } from './panels/home/Home';
-import { toMsg } from '../common/errors';
+import { toMsg } from '../common/utils';
 
 export const App = () => {
 	const [activePanel, setActivePanel] = useState<Panels>(Panels.Empty);

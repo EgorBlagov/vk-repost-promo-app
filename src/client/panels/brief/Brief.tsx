@@ -5,7 +5,7 @@ import { Div, Panel, Group, List, Cell, Button, PanelHeader } from "@vkontakte/v
 
 import { Panels } from '../../logic/navigation';
 import { api } from '../../logic/api';
-import { toMsg } from '../../../common/errors';
+import { toMsg } from '../../../common/utils';
 
 export interface BriefProps {
     id: Panels;
