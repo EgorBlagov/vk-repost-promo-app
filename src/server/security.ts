@@ -3,7 +3,7 @@ import * as crypto from 'crypto';
 import * as _ from 'lodash';
 import * as Joi  from '@hapi/joi';
 
-import { Request, NextFunction, Response, RequestHandler} from 'express';
+import { Request, NextFunction, Response } from 'express';
 import { toMsg } from '../common/utils';
 import { vkAuthHeaderName, vkApiAuthHeaderName } from '../common/security';
 import { IVkParams, VkViewerRole } from '../common/types';

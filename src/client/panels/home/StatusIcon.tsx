@@ -1,7 +1,7 @@
 import './StatusIcon.css'
 import * as React from 'react';
 import { Icon16CheckCircle, Icon16Clear } from '../../external';
-import { Avatar, Spinner, Div } from '@vkontakte/vkui';
+import { Spinner, Div } from '@vkontakte/vkui';
 
 interface IProps {
     isOk?: boolean;
