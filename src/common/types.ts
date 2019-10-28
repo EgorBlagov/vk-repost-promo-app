@@ -27,7 +27,7 @@ export interface IPromocode {
     promocode: string;
 }
 
-export interface IAdminGroupConfigured {
+export interface IGroupConfigured {
     isConfigured: boolean;
 }
 
@@ -98,7 +98,7 @@ export type MethodDefinitionTypeMap = {
     [Methods.IsGroupConfigured]: {
         [MethodDefinitionTypes.QueryParams]: {},
         [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IAdminGroupConfigured,
+        [MethodDefinitionTypes.ResponseType]: IGroupConfigured,
     },
     [Methods.GetGroupRequirement]: {
         [MethodDefinitionTypes.QueryParams]: {},
