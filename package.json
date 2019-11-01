@@ -14,7 +14,7 @@
     "dev:server": "concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
     "dev": "concurrently --names \"BACK,CLIENT\" -c \"bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\"",
-    "tslint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*[!.d].ts?(x)"
+    "lint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*[!.d].ts?(x)"
   },
   "husky": {
     "hooks": {
@@ -22,6 +22,10 @@
     }
   },
   "lint-staged": {
+    "src/**/*.d.ts": [
+      "prettier --write",
+      "git add"
+    ],
     "src/**/*[!.d].ts?(x)": [
       "prettier --write",
       "tslint --fix",
