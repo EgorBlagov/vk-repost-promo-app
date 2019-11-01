@@ -1,5 +1,12 @@
-import * as Joi from '@hapi/joi';
-import { ILaunchParams, IGroupConfigured, IGroupRequirement, IUserStatus, IPromocode, IAdminGroupConfig } from './types';
+import * as Joi from "@hapi/joi";
+import {
+    IAdminGroupConfig,
+    IGroupConfigured,
+    IGroupRequirement,
+    ILaunchParams,
+    IPromocode,
+    IUserStatus,
+} from "./types";
 
 export enum Methods {
     GetLaunchParams,
@@ -8,105 +15,105 @@ export enum Methods {
     GetUserStatus,
     GetUserPromocode,
     AdminGetGroupConfig,
-    AdminSetGroupConfig
+    AdminSetGroupConfig,
 }
 
 export enum MethodDefinitionTypes {
     QueryParams,
     RequestParams,
-    ResponseType
+    ResponseType,
 }
 
 export enum MethodDefinitionValues {
     Route,
     Type,
-    QueryParamsSchema
+    QueryParamsSchema,
 }
 
 export enum RequestType {
-    GET = 'GET',
-    PUT = 'PUT'
+    GET = "GET",
+    PUT = "PUT",
 }
 
-export type MethodDefinitionTypeMap = {
+export interface IMethodDefinitionTypeMap {
     [Methods.GetLaunchParams]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: ILaunchParams,
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: ILaunchParams;
+    };
     [Methods.IsGroupConfigured]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IGroupConfigured,
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: IGroupConfigured;
+    };
     [Methods.GetGroupRequirement]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IGroupRequirement
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: IGroupRequirement;
+    };
     [Methods.GetUserStatus]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IUserStatus
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: IUserStatus;
+    };
     [Methods.GetUserPromocode]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IPromocode
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: IPromocode;
+    };
     [Methods.AdminGetGroupConfig]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: {},
-        [MethodDefinitionTypes.ResponseType]: IAdminGroupConfig,
-    },
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: {};
+        [MethodDefinitionTypes.ResponseType]: IAdminGroupConfig;
+    };
     [Methods.AdminSetGroupConfig]: {
-        [MethodDefinitionTypes.QueryParams]: {},
-        [MethodDefinitionTypes.RequestParams]: IAdminGroupConfig,
-        [MethodDefinitionTypes.ResponseType]: {},
-    }
+        [MethodDefinitionTypes.QueryParams]: {};
+        [MethodDefinitionTypes.RequestParams]: IAdminGroupConfig;
+        [MethodDefinitionTypes.ResponseType]: {};
+    };
 }
 
 export const MethodDefinitionValueMap = {
     [Methods.GetLaunchParams]: {
-        [MethodDefinitionValues.Route]: '/api/launch_params',
+        [MethodDefinitionValues.Route]: "/api/launch_params",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.IsGroupConfigured]: {
-        [MethodDefinitionValues.Route]: '/api/group/available',
+        [MethodDefinitionValues.Route]: "/api/group/available",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.GetGroupRequirement]: {
-        [MethodDefinitionValues.Route]: '/api/group/requirement',
+        [MethodDefinitionValues.Route]: "/api/group/requirement",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.GetUserStatus]: {
-        [MethodDefinitionValues.Route]: '/api/group/user/status',
+        [MethodDefinitionValues.Route]: "/api/group/user/status",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.GetUserPromocode]: {
-        [MethodDefinitionValues.Route]: '/api/group/user/promocode',
+        [MethodDefinitionValues.Route]: "/api/group/user/promocode",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.AdminGetGroupConfig]: {
-        [MethodDefinitionValues.Route]: '/api/group/admin/config',
+        [MethodDefinitionValues.Route]: "/api/group/admin/config",
         [MethodDefinitionValues.Type]: RequestType.GET,
-        [MethodDefinitionValues.QueryParamsSchema]:{},
+        [MethodDefinitionValues.QueryParamsSchema]: {},
     },
     [Methods.AdminSetGroupConfig]: {
-        [MethodDefinitionValues.Route]: '/api/group/admin/config',
+        [MethodDefinitionValues.Route]: "/api/group/admin/config",
         [MethodDefinitionValues.Type]: RequestType.PUT,
         [MethodDefinitionValues.QueryParamsSchema]: {},
-    }
-}
+    },
+};
 
-export type QueryParams<T extends Methods> = MethodDefinitionTypeMap[T][MethodDefinitionTypes.QueryParams];
-export type RequestParams<T extends Methods> = MethodDefinitionTypeMap[T][MethodDefinitionTypes.RequestParams]
-export type ResponseType<T extends Methods> = MethodDefinitionTypeMap[T][MethodDefinitionTypes.ResponseType];
+export type QueryParams<T extends Methods> = IMethodDefinitionTypeMap[T][MethodDefinitionTypes.QueryParams];
+export type RequestParams<T extends Methods> = IMethodDefinitionTypeMap[T][MethodDefinitionTypes.RequestParams];
+export type ResponseType<T extends Methods> = IMethodDefinitionTypeMap[T][MethodDefinitionTypes.ResponseType];
 
 export function GetRequestType<T extends Methods>(methodType: T): RequestType {
     return MethodDefinitionValueMap[methodType][MethodDefinitionValues.Type];

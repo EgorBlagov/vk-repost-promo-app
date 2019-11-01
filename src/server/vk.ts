@@ -1,6 +1,6 @@
-import * as _ from 'lodash';
-import axios from 'axios';
-import { TRepostInfo } from '../common/types';
+import axios from "axios";
+import * as _ from "lodash";
+import { TRepostInfo } from "../common/types";
 
 export interface IVkApi {
     repostInfo(token: string, userId: number, groupId: number, postId: number): Promise<TRepostInfo>;
@@ -12,35 +12,15 @@ interface IVkResponse {
 }
 
 class VkBasicApi implements IVkApi {
-    private baseUrl = 'https://api.vk.com/method/';
     private get commonParams() {
         return {
-            v: '5.101'
-        }
+            v: "5.101",
+        };
     }
-
-    private buildUrl(methodUrl: string): string {
-        return `${this.baseUrl}${methodUrl}`;
-    }
-
-    private buildParams(token: string, params: Record<string, any>): Record<string, any> {
-        return {
-            ...this.commonParams,
-            access_token: token,
-            ...params
-        }
-    }
-
-    private async call(methodUrl: string, token: string, params: Record<string, any>): Promise<IVkResponse> {
-        const result = await axios.get(this.buildUrl(methodUrl), {
-            params: this.buildParams(token, params)
-        });
-
-        return result.data;
-    }
+    private baseUrl = "https://api.vk.com/method/";
 
     public async repostInfo(token: string, userId: number, groupId: number, postId: number): Promise<TRepostInfo> {
-        const wallPosts = await this.call('wall.get', token, {
+        const wallPosts = await this.call("wall.get", token, {
             owner_id: userId,
             count: 20,
         });
@@ -59,12 +39,32 @@ class VkBasicApi implements IVkApi {
     }
 
     public async isMember(token: string, userId: number, groupId: number): Promise<boolean> {
-        const response: any = await this.call('groups.isMember', token, {
+        const response: any = await this.call("groups.isMember", token, {
             user_id: userId,
             group_id: groupId,
         });
 
         return response.response === 1;
+    }
+
+    private buildUrl(methodUrl: string): string {
+        return `${this.baseUrl}${methodUrl}`;
+    }
+
+    private buildParams(token: string, params: Record<string, any>): Record<string, any> {
+        return {
+            ...this.commonParams,
+            access_token: token,
+            ...params,
+        };
+    }
+
+    private async call(methodUrl: string, token: string, params: Record<string, any>): Promise<IVkResponse> {
+        const result = await axios.get(this.buildUrl(methodUrl), {
+            params: this.buildParams(token, params),
+        });
+
+        return result.data;
     }
 }
 

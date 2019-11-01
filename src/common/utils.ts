@@ -7,7 +7,7 @@ export function safeGet<T, K>(target: T, get: (target: T) => K): K | undefined {
 }
 
 export function isOk(object: any): boolean {
-    return object !== undefined && object !== null && object !== 'null';
+    return object !== undefined && object !== null && object !== "null";
 }
 
 export function toMsg(err: any): string {
@@ -20,19 +20,19 @@ export function toMsg(err: any): string {
             return err.error;
         }
 
-        if (typeof err === 'string') {
+        if (typeof err === "string") {
             return err;
         }
-        
+
         if (err.error_data !== undefined && err.error_data.error_reason !== undefined) {
             const reason = err.error_data.error_reason;
-            if (typeof reason === 'string') {
+            if (typeof reason === "string") {
                 return reason;
             } else {
                 return reason.error_msg;
             }
         }
-    } finally {
-        return JSON.stringify(err);
+    } catch {
+        return "Unknown error";
     }
 }

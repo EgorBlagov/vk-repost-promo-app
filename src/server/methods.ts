@@ -1,26 +1,26 @@
-import * as _ from 'lodash';
-import { IAdminGroupConfig, VkViewerRole } from '../common/types';
-import { RouterEx } from './router-ex';
-import { vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware, vkApiAuthMiddleware } from './security';
-import { storage } from './storage';
-import { vkApi } from './vk';
-import { PromocodeProcessor } from './promocode-processor';
-import { Methods } from '../common/api-declaration';
+import * as _ from "lodash";
+import { Methods } from "../common/api-declaration";
+import { IAdminGroupConfig, VkViewerRole } from "../common/types";
+import { PromocodeProcessor } from "./promocode-processor";
+import { RouterEx } from "./router-ex";
+import { vkApiAuthMiddleware, vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
+import { storage } from "./storage";
+import { vkApi } from "./vk";
 
-export const apiRouter: RouterEx = new RouterEx('/api');
+export const apiRouter: RouterEx = new RouterEx("/api");
 apiRouter.addApiRoute(Methods.GetLaunchParams, (req, res) => {
     res.send({
         groupId: req.ex.vkParams.vk_group_id && req.ex.vkParams.vk_group_id,
-        isAdmin: req.ex.vkParams.vk_viewer_group_role === VkViewerRole.admin
+        isAdmin: req.ex.vkParams.vk_viewer_group_role === VkViewerRole.admin,
     });
 });
 
-const groupRouter: RouterEx = new RouterEx('/group', apiRouter);
+const groupRouter: RouterEx = new RouterEx("/group", apiRouter);
 groupRouter.addMiddleware(vkFromGroupOnlyMiddleware);
 groupRouter.addApiRoute(Methods.IsGroupConfigured, async (req, res) => {
     try {
         const isConfigured = await storage.isConfigured(req.ex.vkParams.vk_group_id);
-        res.send({ isConfigured })
+        res.send({ isConfigured });
     } catch (err) {
         res.error(err);
     }
@@ -35,14 +35,19 @@ groupRouter.addApiRoute(Methods.GetGroupRequirement, async (req, res) => {
     }
 });
 
-const userRouter: RouterEx = new RouterEx('/user', groupRouter);
+const userRouter: RouterEx = new RouterEx("/user", groupRouter);
 userRouter.addMiddleware(vkApiAuthMiddleware);
 userRouter.addApiRoute(Methods.GetUserStatus, async (req, res) => {
     try {
         const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
         res.send({
             member: await vkApi.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id),
-            repost: await vkApi.repostInfo(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id, groupConfig.postId)
+            repost: await vkApi.repostInfo(
+                req.ex.vkToken,
+                req.ex.vkParams.vk_user_id,
+                req.ex.vkParams.vk_group_id,
+                groupConfig.postId,
+            ),
         });
     } catch (err) {
         res.error(err);
@@ -52,7 +57,12 @@ userRouter.addApiRoute(Methods.GetUserStatus, async (req, res) => {
 userRouter.addApiRoute(Methods.GetUserPromocode, async (req, res) => {
     try {
         const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
-        const repostInfo = await vkApi.repostInfo(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id, groupConfig.postId);
+        const repostInfo = await vkApi.repostInfo(
+            req.ex.vkToken,
+            req.ex.vkParams.vk_user_id,
+            req.ex.vkParams.vk_group_id,
+            groupConfig.postId,
+        );
         const isMember = await vkApi.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id);
         if (PromocodeProcessor.canObtainPromocode(isMember, repostInfo, groupConfig.hoursToGet)) {
             const promocode = await storage.getPromocode(req.ex.vkParams.vk_group_id);
@@ -67,7 +77,7 @@ userRouter.addApiRoute(Methods.GetUserPromocode, async (req, res) => {
     }
 });
 
-const adminGroupsRouter: RouterEx = new RouterEx('/admin', groupRouter);
+const adminGroupsRouter: RouterEx = new RouterEx("/admin", groupRouter);
 
 adminGroupsRouter.addMiddleware(vkAuthAdminOnlyMiddleware);
 adminGroupsRouter.addApiRoute(Methods.AdminGetGroupConfig, async (req, res) => {

@@ -1,13 +1,28 @@
-import * as _ from 'lodash';
-import { vkConnect } from '../external';
-import { ILaunchParams, IResponse, IAdminGroupConfig, IGroupRequirement, IUserStatus, IPromocode } from '../../common/types';
-import { Methods, QueryParams, RequestParams, ResponseType, RequestType, GetRequestType, GetRequestRoute } from '../../common/api-declaration';
-import { toMsg } from '../../common/utils';
-import { vkAuthHeaderName, vkApiAuthHeaderName } from '../../common/security';
-import { isOk } from '../../common/utils';
+import * as _ from "lodash";
+import {
+    GetRequestRoute,
+    GetRequestType,
+    Methods,
+    QueryParams,
+    RequestParams,
+    RequestType,
+    ResponseType,
+} from "../../common/api-declaration";
+import { vkApiAuthHeaderName, vkAuthHeaderName } from "../../common/security";
+import {
+    IAdminGroupConfig,
+    IGroupRequirement,
+    ILaunchParams,
+    IPromocode,
+    IResponse,
+    IUserStatus,
+} from "../../common/types";
+import { toMsg } from "../../common/utils";
+import { isOk } from "../../common/utils";
+import { vkConnect } from "../external";
 
 class Api {
-    accessToken?: string;
+    public accessToken?: string;
 
     constructor() {
         this.accessToken = null;
@@ -15,25 +30,23 @@ class Api {
 
     private get commonParams() {
         return {
-            v: '5.101',
-            access_token: this.accessToken
-        }
+            v: "5.101",
+            access_token: this.accessToken,
+        };
     }
 
-    async Subscribe(groupId: number) {
-        return vkConnect.sendPromise('VKWebAppJoinGroup', {group_id: groupId});
+    public async Subscribe(groupId: number) {
+        return vkConnect.sendPromise("VKWebAppJoinGroup", { group_id: groupId });
     }
 
-    async checkWallPost(groupId: number, postId: number): Promise<boolean> {
-        const response: { response: any[] } = await vkConnect.sendPromise("VKWebAppCallAPIMethod",
-            {
-                method: 'wall.getById',
-                params: {
-                    posts: `-${groupId}_${postId}`,
-                    ...this.commonParams
-                }
-            }
-        );
+    public async checkWallPost(groupId: number, postId: number): Promise<boolean> {
+        const response: { response: any[] } = await vkConnect.sendPromise("VKWebAppCallAPIMethod", {
+            method: "wall.getById",
+            params: {
+                posts: `-${groupId}_${postId}`,
+                ...this.commonParams,
+            },
+        });
 
         return response.response.length !== 0;
     }
@@ -43,17 +56,17 @@ class Api {
     }
 
     public async obtainToken() {
-        const result = await vkConnect.sendPromise('VKWebAppGetAuthToken', {app_id: 7153874, scope: 'wall,groups'}); // TODO: unhardcode
+        const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", { app_id: 7153874, scope: "wall,groups" }); // TODO: unhardcode
         this.accessToken = result.access_token;
     }
 
-    async install() {
-        return vkConnect.sendPromise('VKWebAppAddToCommunity');
+    public async install() {
+        return vkConnect.sendPromise("VKWebAppAddToCommunity");
     }
 
     // Backend calls
 
-    async getLaunchInfo(): Promise<ILaunchParams> {
+    public async getLaunchInfo(): Promise<ILaunchParams> {
         try {
             return await this.request(Methods.GetLaunchParams);
         } catch (error) {
@@ -61,7 +74,7 @@ class Api {
         }
     }
 
-    async isGroupConfigured(): Promise<boolean> {
+    public async isGroupConfigured(): Promise<boolean> {
         try {
             const result = await this.request(Methods.IsGroupConfigured);
             return result.isConfigured;
@@ -70,7 +83,7 @@ class Api {
         }
     }
 
-    async getGroupConfig(): Promise<IAdminGroupConfig> {
+    public async getGroupConfig(): Promise<IAdminGroupConfig> {
         try {
             const result = await this.request(Methods.AdminGetGroupConfig);
             return result;
@@ -79,7 +92,7 @@ class Api {
         }
     }
 
-    async saveGroupConfig(groupConfig: IAdminGroupConfig): Promise<void> {
+    public async saveGroupConfig(groupConfig: IAdminGroupConfig): Promise<void> {
         try {
             await this.request(Methods.AdminSetGroupConfig, {}, groupConfig);
         } catch (error) {
@@ -87,7 +100,7 @@ class Api {
         }
     }
 
-    async getGroupRequirement(): Promise<IGroupRequirement> {
+    public async getGroupRequirement(): Promise<IGroupRequirement> {
         try {
             const result = await this.request(Methods.GetGroupRequirement);
             return result;
@@ -96,7 +109,7 @@ class Api {
         }
     }
 
-    async getUserStatus(): Promise<IUserStatus> {
+    public async getUserStatus(): Promise<IUserStatus> {
         try {
             const result = await this.request(Methods.GetUserStatus);
             return result;
@@ -105,7 +118,7 @@ class Api {
         }
     }
 
-    async getPromocode(): Promise<IPromocode> {
+    public async getPromocode(): Promise<IPromocode> {
         try {
             const result = await this.request(Methods.GetUserPromocode);
             return result;
@@ -114,8 +127,12 @@ class Api {
         }
     }
 
-    private async request<T extends Methods>(methodType: T, queryParams: QueryParams<T> = {}, params: RequestParams<T> = {}): Promise<ResponseType<T>> {
-        let request = this.createRequest(methodType, queryParams, params);
+    private async request<T extends Methods>(
+        methodType: T,
+        queryParams: QueryParams<T> = {},
+        params: RequestParams<T> = {},
+    ): Promise<ResponseType<T>> {
+        const request = this.createRequest(methodType, queryParams, params);
         this.injectVkHeaders(request);
 
         const response = await fetch(request);
@@ -127,7 +144,7 @@ class Api {
 
         return json.result;
     }
-        
+
     private injectVkHeaders(r: Request): void {
         r.headers.append(vkAuthHeaderName, window.location.search);
         r.headers.append(vkApiAuthHeaderName, this.accessToken);
@@ -135,27 +152,33 @@ class Api {
 
     private getUrl<T extends Methods>(methodType: T, queryParams: QueryParams<T>): string {
         let url = GetRequestRoute(methodType);
-        _(queryParams).keys().each(key => {
-            url = url.replace(`:${key}`, (queryParams as any)[key])
-        });
-    
+        _(queryParams)
+            .keys()
+            .each(key => {
+                url = url.replace(`:${key}`, (queryParams as any)[key]);
+            });
+
         return url;
     }
-    
+
     private getRequestInit<T extends Methods>(methodType: T, params: RequestParams<T>): RequestInit {
         const result: RequestInit = {
-            method: GetRequestType(methodType)
+            method: GetRequestType(methodType),
         };
-    
+
         if (result.method === RequestType.PUT) {
             result.body = JSON.stringify(params);
-            result.headers = new Headers({'Content-Type': 'application/json'});
+            result.headers = new Headers({ "Content-Type": "application/json" });
         }
-    
+
         return result;
     }
-    
-    private createRequest<T extends Methods>(methodType: T, queryParams: QueryParams<T>, params: RequestParams<T>): Request {
+
+    private createRequest<T extends Methods>(
+        methodType: T,
+        queryParams: QueryParams<T>,
+        params: RequestParams<T>,
+    ): Request {
         const url: string = this.getUrl(methodType, queryParams);
         const requestInit: RequestInit = this.getRequestInit(methodType, params);
         return new Request(url, requestInit);

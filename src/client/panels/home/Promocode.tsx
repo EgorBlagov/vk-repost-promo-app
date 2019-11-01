@@ -1,9 +1,9 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react'
-import { Cell, Div, Spinner, Button } from '@vkontakte/vkui';
-import * as CopyToClipboard from 'react-copy-to-clipboard';
-import { api } from '../../logic/api';
-import { toMsg } from '../../../common/utils';
+import { Button, Cell, Div, Spinner } from "@vkontakte/vkui";
+import * as React from "react";
+import { useEffect, useState } from "react";
+import * as CopyToClipboard from "react-copy-to-clipboard";
+import { toMsg } from "../../../common/utils";
+import { api } from "../../logic/api";
 
 interface IProps {
     notify: (msg: string, isError: boolean) => void;
@@ -11,9 +11,14 @@ interface IProps {
 
 export const Promocode = ({ notify }: IProps) => {
     const [promocode, setPromocode] = useState<string>(undefined);
-    const copyButton = <CopyToClipboard text={promocode}>
-        <Button size="m" onClick={() => notify('Скопировано', false)}>Скопировать</Button>
-    </CopyToClipboard>
+    const onClickCopy = () => notify("Скопировано", false);
+    const copyButton = (
+        <CopyToClipboard text={promocode}>
+            <Button size="m" onClick={onClickCopy}>
+                Скопировать
+            </Button>
+        </CopyToClipboard>
+    );
 
     useEffect(() => {
         api.getPromocode()
@@ -23,13 +28,15 @@ export const Promocode = ({ notify }: IProps) => {
 
     const renderContent = () => {
         if (promocode === undefined) {
-            return <Spinner size='small'/>
+            return <Spinner size="small" />;
         } else {
             return promocode;
         }
-    }
+    };
 
-    return <Cell asideContent={copyButton}>
-        <Div className='tool_success'>{renderContent()}</Div>
-    </Cell>
-}
+    return (
+        <Cell asideContent={copyButton}>
+            <Div className="tool_success">{renderContent()}</Div>
+        </Cell>
+    );
+};

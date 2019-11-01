@@ -1,18 +1,20 @@
-import * as React from 'react';
-import { HeaderButton } from '@vkontakte/vkui';
-import { Icon28Settings } from '../../external';
+import { HeaderButton } from "@vkontakte/vkui";
+import * as React from "react";
+import { Icon28Settings } from "../../external";
 
-import { Panels } from '../../logic/navigation';
+import { Panels } from "../../logic/navigation";
 
-export interface AdminSettingsButtonProps {
+export interface IAdminSettingsButtonProps {
     isAdmin: boolean;
-    go: (to:Panels) => void;
+    go: (to: Panels) => void;
 }
 
-export const AdminSettingsButton = ({isAdmin, go}: AdminSettingsButtonProps) => {
-    return isAdmin
-    ? <HeaderButton onClick={() => go(Panels.Configure)} style={{marginLeft: '6px'}}>
-        <Icon28Settings/>
-    </HeaderButton>
-    : null;
-}
+export const AdminSettingsButton = ({ isAdmin, go }: IAdminSettingsButtonProps) => {
+    const onClickBack = () => go(Panels.Configure);
+
+    return isAdmin ? (
+        <HeaderButton onClick={onClickBack} style={{ marginLeft: "6px" }}>
+            <Icon28Settings />
+        </HeaderButton>
+    ) : null;
+};

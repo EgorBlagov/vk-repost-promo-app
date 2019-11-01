@@ -14,7 +14,7 @@
     "dev:server": "concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
     "dev": "concurrently --names \"BACK,CLIENT\" -c \"bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\"",
-    "lint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*[!.d].ts?(x)"
+    "lint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*.{ts,tsx}"
   },
   "husky": {
     "hooks": {
@@ -22,11 +22,7 @@
     }
   },
   "lint-staged": {
-    "src/**/*.d.ts": [
-      "prettier --write",
-      "git add"
-    ],
-    "src/**/*[!.d].ts?(x)": [
+    "src/**/*.{ts,tsx}": [
       "prettier --write",
       "tslint --fix",
       "git add"
@@ -47,6 +43,7 @@
     "@types/react-copy-to-clipboard": "^4.3.0",
     "@types/react-dom": "^16.9.1",
     "@types/sqlite3": "^3.1.5",
+    "@types/winston": "^2.4.4",
     "concurrently": "^5.0.0",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
@@ -84,7 +81,8 @@
     "source-map-support": "^0.5.13",
     "sqlite3": "^4.1.0",
     "tslint-config-prettier": "^1.18.0",
-    "tslint-react": "^4.1.0"
+    "tslint-react": "^4.1.0",
+    "winston": "^3.2.1"
   },
   "proxy": "http://localhost:5000"
 }

@@ -8,12 +8,14 @@ export interface IGroupRequirement {
     hoursToGet: number;
 }
 
-export type TRepostInfo = {
-    reposted: true;
-    postDate: number;
-} | {
-    reposted: false;
-}
+export type TRepostInfo =
+    | {
+          reposted: true;
+          postDate: number;
+      }
+    | {
+          reposted: false;
+      };
 
 export interface IUserStatus {
     member: boolean;
@@ -28,8 +30,7 @@ export interface IGroupConfigured {
     isConfigured: boolean;
 }
 
-export interface IAdminGroupConfig extends IGroupRequirement, IPromocode {
-};
+export interface IAdminGroupConfig extends IGroupRequirement, IPromocode {}
 
 export interface IResponse<T> extends Partial<IError> {
     result?: T;
@@ -40,11 +41,11 @@ export interface IError {
 }
 
 export enum VkViewerRole {
-    none = 'none',
-    member = 'member',
-    moder = 'moder',
-    editor = 'editor',
-    admin = 'admin'
+    none = "none",
+    member = "member",
+    moder = "moder",
+    editor = "editor",
+    admin = "admin",
 }
 
 export interface IVkParams {
@@ -53,7 +54,7 @@ export interface IVkParams {
     vk_is_app_user: number;
     vk_are_notifications_enabled: number;
     vk_access_token_settings: string;
-    vk_group_id?: number; 
+    vk_group_id?: number;
     vk_viewer_group_role?: VkViewerRole;
     sign: string;
     [x: string]: any;
