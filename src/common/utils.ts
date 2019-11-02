@@ -1,8 +1,8 @@
-export function safeGet<T, K>(target: T, get: (target: T) => K): K | undefined {
+export function safeGet<T, K>(target: T, get: (target: T) => K, defaultResult?: K): K | undefined {
     try {
         return get(target);
     } catch {
-        return undefined;
+        return defaultResult;
     }
 }
 
