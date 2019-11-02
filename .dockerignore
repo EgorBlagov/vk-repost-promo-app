@@ -5,6 +5,8 @@ docker-compose*
 .dockerignore
 .git
 .gitignore
+.env
+Makefile
 README.md
 LICENSE
 .vscode

@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports: 
+      - 15352:${PORT}
+    environment:
+      - PORT=${PORT}
+      - VK_KEY=${VK_KEY}
+      - APP_ID=${APP_ID}
+    tty: true

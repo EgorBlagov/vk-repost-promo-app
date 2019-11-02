@@ -32,13 +32,13 @@ module.exports = {
             }
         ]
     },
+    node: {
+        process: false
+    },
     externals: [
         nodeExternals()
     ],
     watchOptions: {
         poll: 1000
-    },
-    plugins: [
-        new webpack.EnvironmentPlugin(['PORT', 'VK_KEY'])
-    ]
+    }
 }
