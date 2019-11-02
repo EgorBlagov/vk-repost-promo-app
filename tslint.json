@@ -5,7 +5,8 @@
     "rules": {
         "object-literal-sort-keys": false,
         "no-namespace": false,
-        "no-bitwise": false
+        "no-bitwise": false,
+        "file-name-casing": [true, {".tsx": "pascal-case", ".ts": "kebab-case"}]
     },
     "rulesDirectory": []
 }

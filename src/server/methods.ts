@@ -5,7 +5,7 @@ import { PromocodeProcessor } from "./promocode-processor";
 import { RouterEx } from "./router-ex";
 import { vkApiAuthMiddleware, vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
 import { storage } from "./storage";
-import { vkApi } from "./vk";
+import { vkTool } from "./vk";
 
 export const apiRouter: RouterEx = new RouterEx("/api");
 apiRouter.addApiRoute(Methods.GetLaunchParams, (req, res) => {
@@ -41,8 +41,8 @@ userRouter.addApiRoute(Methods.GetUserStatus, async (req, res) => {
     try {
         const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
         res.send({
-            member: await vkApi.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id),
-            repost: await vkApi.repostInfo(
+            member: await vkTool.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id),
+            repost: await vkTool.repostInfo(
                 req.ex.vkToken,
                 req.ex.vkParams.vk_user_id,
                 req.ex.vkParams.vk_group_id,
@@ -57,13 +57,13 @@ userRouter.addApiRoute(Methods.GetUserStatus, async (req, res) => {
 userRouter.addApiRoute(Methods.GetUserPromocode, async (req, res) => {
     try {
         const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
-        const repostInfo = await vkApi.repostInfo(
+        const repostInfo = await vkTool.repostInfo(
             req.ex.vkToken,
             req.ex.vkParams.vk_user_id,
             req.ex.vkParams.vk_group_id,
             groupConfig.postId,
         );
-        const isMember = await vkApi.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id);
+        const isMember = await vkTool.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id);
         if (PromocodeProcessor.canObtainPromocode(isMember, repostInfo, groupConfig.hoursToGet)) {
             const promocode = await storage.getPromocode(req.ex.vkParams.vk_group_id);
             res.send(promocode);
