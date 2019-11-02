@@ -1,4 +1,5 @@
 import * as _ from "lodash";
+import * as path from "path";
 import * as sqlite from "sqlite3";
 import { IAdminGroupConfig, IGroupRequirement, IPromocode } from "../common/types";
 import { isOk, safeGet, toMsg } from "../common/utils";
@@ -32,7 +33,7 @@ export class Sqlite3Storage implements IStorage {
     private dbFilename: string;
 
     constructor(name: string) {
-        this.dbFilename = `./${name}`;
+        this.dbFilename = `${name}`;
     }
 
     private get connected() {
@@ -161,5 +162,5 @@ export class Sqlite3Storage implements IStorage {
     }
 }
 
-export const storage: IStorage = new Sqlite3Storage("main.db");
+export const storage: IStorage = new Sqlite3Storage(path.resolve(process.env.DB_PATH, "main.db"));
 storage.init();
