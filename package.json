@@ -13,7 +13,24 @@
     "dev:mobile": "webpack-dev-server --config webpack.client.config.js --port 15353 --hot --host 0.0.0.0 --mode development",
     "dev:server": "concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
     "dev": "concurrently --names \"BACK,CLIENT\" -c \"bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\"",
-    "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\""
+    "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\"",
+    "lint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*.{ts,tsx}"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "prettier --write",
+      "tslint --fix",
+      "git add"
+    ],
+    "src/**/*.css": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "author": "Egor Blagov",
   "license": "ISC",
@@ -26,15 +43,22 @@
     "@types/react-copy-to-clipboard": "^4.3.0",
     "@types/react-dom": "^16.9.1",
     "@types/sqlite3": "^3.1.5",
+    "@types/winston": "^2.4.4",
     "concurrently": "^5.0.0",
     "css-loader": "^3.2.0",
     "file-loader": "^4.2.0",
     "html-loader": "^0.5.5",
     "html-webpack-plugin": "^3.2.0",
+    "husky": "^3.0.9",
+    "lint-staged": "^9.4.2",
     "nodemon": "^1.19.3",
+    "prettier": "^1.18.2",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.2.0",
+    "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-react": "^4.1.0",
     "typescript": "^3.6.3",
     "webpack": "^4.41.0",
     "webpack-cli": "^3.3.9",
@@ -48,17 +72,16 @@
     "@types/source-map-support": "^0.5.0",
     "@vkontakte/icons": "^1.10.0",
     "@vkontakte/vk-connect": "^1.6.5",
-    "@vkontakte/vk-mini-apps-api": "0.0.5",
     "@vkontakte/vkui": "^2.31.0",
     "axios": "^0.19.0",
     "express": "^4.17.1",
-    "install": "^0.13.0",
     "lodash": "^4.17.15",
     "react": "^16.10.2",
     "react-copy-to-clipboard": "^5.0.1",
     "react-dom": "^16.10.2",
     "source-map-support": "^0.5.13",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.1.0",
+    "winston": "^3.2.1"
   },
   "proxy": "http://localhost:5000"
 }

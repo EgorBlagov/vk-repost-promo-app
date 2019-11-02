@@ -1,26 +1,26 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import * as _ from 'lodash';
+import * as _ from "lodash";
+import * as React from "react";
+import { useEffect, useState } from "react";
 
-import { Panel, PanelHeader, HeaderButton, Group } from '@vkontakte/vkui';
+import { Group, HeaderButton, Panel, PanelHeader } from "@vkontakte/vkui";
 
-import { IAdminGroupConfig, ILaunchParams } from '../../../common/types';
-import { api } from '../../logic/api';
-import { Panels } from '../../logic/navigation';
-import { toMsg } from '../../../common/errors';
+import { IAdminGroupConfig, ILaunchParams } from "../../../common/types";
+import { toMsg } from "../../../common/utils";
+import { api } from "../../logic/api";
+import { Panels } from "../../logic/navigation";
 
-import { CrossPlatformBack } from '../../utils/CrossPlatformBack';
-import { EditGroup } from './EditGroup';
+import { CrossPlatformBack } from "../../utils/CrossPlatformBack";
+import { EditGroup } from "./EditGroup";
 
-export interface ConfigurationProps {
-	id: Panels;
+export interface IConfigurationProps {
+    id: Panels;
     go: (to: Panels) => void;
     children: any;
     launchInfo: ILaunchParams;
     notify: (message: string, isError: boolean) => void;
 }
 
-export const Configuration = ({ id, go, children, launchInfo, notify }: ConfigurationProps) => {
+export const Configuration = ({ id, go, children, launchInfo, notify }: IConfigurationProps) => {
     const [groupConfig, setGroupConfig] = useState<IAdminGroupConfig>(undefined);
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
@@ -36,49 +36,55 @@ export const Configuration = ({ id, go, children, launchInfo, notify }: Configur
                 setGroupConfig({
                     hoursToGet: 0,
                     postId: 0,
-                    promocode: 'Введите промокод'
+                    promocode: "Введите промокод",
                 });
             }
         } catch (error) {
             notify(toMsg(error), true);
         }
-    }
+    };
 
-    const saveGroupParams = async (groupConfig: IAdminGroupConfig) => {
+    const saveGroupParams = async (cfg: IAdminGroupConfig) => {
         try {
             setIsSaving(true);
-            const postExists = await api.checkWallPost(launchInfo.groupId, groupConfig.postId);
+            const postExists = await api.checkWallPost(launchInfo.groupId, cfg.postId);
             if (!postExists) {
                 notify(`Указанный пост не найден на стене сообщества`, true);
                 return;
             }
 
-            await api.saveGroupConfig(groupConfig);
-            notify('Сохранено', false);
+            await api.saveGroupConfig(cfg);
+            notify("Сохранено", false);
         } catch (err) {
             notify(`Не удалось сохранить: ${toMsg(err)}`, true);
         } finally {
             setIsSaving(false);
         }
-    }
+    };
 
     useEffect(() => {
         fetchConfigStatus();
     }, []);
 
-	return <Panel id={id}>
-		<PanelHeader
-            left={<HeaderButton onClick={() => go(Panels.Home)}>{<CrossPlatformBack/>}</HeaderButton>}
-        >Настройка</PanelHeader>
-        <Group>
-            <EditGroup 
-                config={groupConfig}
-                saveGroupParams={saveGroupParams}
-                reset={() => fetchConfigStatus().catch(err => notify(`Не удалось сбросить статус: ${toMsg(err)}`, true))}
-                groupId={launchInfo.groupId}
-                saving={isSaving}
-            />
-        </Group>
-        {children}
-	</Panel>;
-}
+    const goHome = () => go(Panels.Home);
+    const resetGroup = () =>
+        fetchConfigStatus().catch(err => notify(`Не удалось сбросить статус: ${toMsg(err)}`, true));
+
+    return (
+        <Panel id={id}>
+            <PanelHeader left={<HeaderButton onClick={goHome}>{<CrossPlatformBack />}</HeaderButton>}>
+                Настройка
+            </PanelHeader>
+            <Group>
+                <EditGroup
+                    config={groupConfig}
+                    saveGroupParams={saveGroupParams}
+                    reset={resetGroup}
+                    groupId={launchInfo.groupId}
+                    saving={isSaving}
+                />
+            </Group>
+            {children}
+        </Panel>
+    );
+};

@@ -3,7 +3,7 @@ class WallProcessor {
         return [
             `https://vk.com/wall-${groupId}_1234`,
             `wall-${groupId}_1234`,
-            `https://vk.com/wall-${groupId}?w=wall-${groupId}_1233`
+            `https://vk.com/wall-${groupId}?w=wall-${groupId}_1233`,
         ];
     }
 
@@ -20,7 +20,7 @@ class WallProcessor {
     }
 
     public extractPostId(url: string): number {
-        return parseInt(url.match(/wall-\d+_(\d+)$/)[1])
+        return parseInt(url.match(/wall-\d+_(\d+)$/)[1], 10);
     }
 
     public isPostUrlValid(groupId: number, url: string): boolean {

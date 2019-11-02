@@ -2,9 +2,9 @@ version: '3'
 
 services:
   vk-app:
-    build: .
-    networks:
-      - back
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
@@ -16,6 +16,3 @@ services:
       - APP_ID=${APP_ID}
     tty: true
     command: ["npm", "run", "dev"] 
-
-networks:
-  back:  {}

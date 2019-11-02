@@ -1,15 +1,18 @@
-import * as sqlite from 'sqlite3';
-import * as _ from 'lodash';
-import { IAdminGroupConfig, IPromocode, IGroupRequirement } from '../common/types';
-import { toMsg } from '../common/errors';
+import * as _ from "lodash";
+import * as path from "path";
+import * as sqlite from "sqlite3";
+import { IAdminGroupConfig, IGroupRequirement, IPromocode } from "../common/types";
+import { isOk, safeGet, toMsg } from "../common/utils";
+import { serverLogger } from "./server-logging";
 
 declare module "sqlite3" {
+    // tslint:disable-next-line: interface-name
     interface Database {
         open: boolean;
     }
 }
 
-export interface Storage {
+export interface IStorage {
     isConfigured: (groupId: number) => Promise<boolean>;
     getConfig: (groupId: number) => Promise<IAdminGroupConfig>;
     getGroupRequirement: (groupId: number) => Promise<IGroupRequirement>;
@@ -22,16 +25,15 @@ export interface Storage {
 enum LogLevel {
     INFO,
     WARN,
-    ERROR
+    ERROR,
 }
 
-
-export class Sqlite3Storage implements Storage {
+export class Sqlite3Storage implements IStorage {
     private db: sqlite.Database;
     private dbFilename: string;
 
     constructor(name: string) {
-        this.dbFilename = `./${name}`;
+        this.dbFilename = `${name}`;
     }
 
     private get connected() {
@@ -40,7 +42,7 @@ export class Sqlite3Storage implements Storage {
 
     public init(): void {
         if (this.connected) {
-            this.log('Database is already connected, unable to init', LogLevel.WARN);
+            this.log("Database is already connected, unable to init", LogLevel.WARN);
         } else {
             this.db = new sqlite.Database(this.dbFilename, sqlite.OPEN_READWRITE | sqlite.OPEN_CREATE, err => {
                 if (err) {
@@ -53,7 +55,7 @@ export class Sqlite3Storage implements Storage {
                             POST_ID INT NOT NULL,
                             HOURS INT NOT NULL
                         )`);
-                    })
+                    });
                 }
             });
         }
@@ -61,7 +63,7 @@ export class Sqlite3Storage implements Storage {
 
     public cleanup(): void {
         if (!this.connected) {
-            this.log('Databse is not connected, unable to cleanup', LogLevel.WARN);
+            this.log("Databse is not connected, unable to cleanup", LogLevel.WARN);
         } else {
             this.db.close(err => {
                 if (err) {
@@ -71,140 +73,94 @@ export class Sqlite3Storage implements Storage {
         }
     }
 
-
     public async isConfigured(groupId: number): Promise<boolean> {
-        return await this.invokeOnDb<boolean>(async (db) => {
-            return await new Promise<boolean>((resolve, reject) => {
-                db.serialize(()=>{
-                    db.get(`SELECT COUNT(1) AS CNT FROM GROUPS WHERE GROUP_ID = ?`, [groupId], (err, row) => {
-                        if (err) {
-                            reject(err.message);
-                        } else {
-                            if (row !== undefined && row.CNT === 1) {
-                                resolve(true);
-                            } else {
-                                resolve(false);
-                            }
-                        }
-                    });
-                })
-            })
-        });
+        return this.dbGet("SELECT COUNT(1) AS CNT FROM GROUPS WHERE GROUP_ID = ?", [groupId], row =>
+            safeGet(row, r => r.CNT === 1, false),
+        );
     }
 
     public async getConfig(groupId: number): Promise<IAdminGroupConfig> {
-        return await this.invokeOnDb<IAdminGroupConfig>(async (db) => {
-            return await new Promise<IAdminGroupConfig>((resolve, reject) => {
-                db.serialize(()=>{
-                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
-                        if (err) {
-                            reject(err.message);
-                        } else {
-                            resolve({
-                                hoursToGet: row.HOURS,
-                                postId: row.POST_ID,
-                                promocode: row.PROMOCODE
-                            });
-                        }
-                    });
-                })
-            })
-        });
+        return this.dbGet("SELECT * FROM GROUPS WHERE GROUP_ID = ?", [groupId], row => ({
+            hoursToGet: row.HOURS,
+            postId: row.POST_ID,
+            promocode: row.PROMOCODE,
+        }));
     }
 
     public async setConfig(groupId: number, config: IAdminGroupConfig): Promise<void> {
         const isConfigured: boolean = await this.isConfigured(groupId);
         if (isConfigured) {
-            return await this.invokeOnDb<void>(async (db) => {
-                return await new Promise<void>((resolve, reject) => {
-                    db.serialize(()=>{
-                        db.run(`UPDATE GROUPS
-                            SET PROMOCODE = ?,
+            return this.dbRun(
+                `UPDATE GROUPS
+                                SET PROMOCODE = ?,
                                 POST_ID = ?,
                                 HOURS = ?
-                            WHERE GROUP_ID = ?`, [config.promocode, config.postId, config.hoursToGet, groupId], (err) => {
-                            if (err) {
-                                reject(err.message);
-                            } else {
-                                resolve();
-                            }
-                        });
-                    })
-                })
-            });
+                                WHERE GROUP_ID = ?`,
+                [config.promocode, config.postId, config.hoursToGet, groupId],
+            );
         } else {
-            return await this.invokeOnDb<void>(async (db) => {
-                return await new Promise<void>((resolve, reject) => {
-                    db.serialize(()=>{
-                        db.run(`INSERT INTO GROUPS VALUES (?, ?, ?, ?)`, [groupId, config.promocode, config.postId, config.hoursToGet], (err) => {
-                            if (err) {
-                                reject(err.message);
-                            } else {
-                                resolve();   
-                            }
-                        })
-                    })
-                })
-            })
+            return this.dbRun(`INSERT INTO GROUPS VALUES (?, ?, ?, ?)`, [
+                groupId,
+                config.promocode,
+                config.postId,
+                config.hoursToGet,
+            ]);
         }
     }
 
     public async getGroupRequirement(groupId: number): Promise<IGroupRequirement> {
-        return await this.invokeOnDb<IGroupRequirement>(async (db) => {
-            return await new Promise<IGroupRequirement>((resolve, reject) => {
-                db.serialize(()=>{
-                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
-                        if (err) {
-                            reject(err.message);
-                        } else {
-                            resolve({
-                                hoursToGet: row.HOURS,
-                                postId: row.POST_ID
-                            });
-                        }
-                    });
-                })
-            })
-        });
+        return this.dbGet("SELECT * FROM GROUPS WHERE GROUP_ID = ?", [groupId], row => ({
+            hoursToGet: row.HOURS,
+            postId: row.POST_ID,
+        }));
     }
 
     public async getPromocode(groupId: number): Promise<IPromocode> {
-        return await this.invokeOnDb<IPromocode>(async (db) => {
-            return await new Promise<IPromocode>((resolve, reject) => {
-                db.serialize(()=>{
-                    db.get(`SELECT * FROM GROUPS WHERE GROUP_ID=?`, [groupId], (err, row) => {
-                        if (err) {
-                            reject(err.message);
-                        } else {
-                            resolve({
-                                promocode: row.PROMOCODE
-                            });
-                        }
-                    });
-                })
-            })
+        return this.dbGet("SELECT * FROM GROUPS WHERE GROUP_ID = ?", [groupId], row => ({ promocode: row.PROMOCODE }));
+    }
+
+    private async dbRun(query: string, params: any[]): Promise<void> {
+        return this.invokeOnDb(resolve => {
+            this.db.run(query, params, err => resolve(err));
         });
     }
 
-    private async invokeOnDb<T>(call: (db: sqlite.Database) => Promise<T>): Promise<T> {
+    private async dbGet<T>(query: string, params: any[], mapRowToResult: (row: any) => T): Promise<T> {
+        return this.invokeOnDb(resolve => {
+            this.db.get(query, params, (error, row) => resolve(error, mapRowToResult(row)));
+        });
+    }
+
+    private async invokeOnDb<T>(call: (resolve: (err: Error, x: T) => void) => void): Promise<T> {
         if (!this.connected) {
-            throw new Error('Database is not connected');
+            throw new Error("Database is not connected");
         }
 
-        return await call(this.db);
+        return new Promise<T>((resolve, reject) => {
+            this.db.serialize(() => {
+                const resolver = (err: Error, result: T) => {
+                    if (isOk(err)) {
+                        reject(err);
+                    } else {
+                        resolve(result);
+                    }
+                };
+
+                call(resolver);
+            });
+        });
     }
 
     private log(msg: string, logLevel: LogLevel = LogLevel.INFO) {
         if (logLevel === LogLevel.INFO) {
-            console.log(msg);
+            serverLogger.info(msg);
         } else if (logLevel === LogLevel.WARN) {
-            console.warn(msg);
+            serverLogger.warn(msg);
         } else if (logLevel === LogLevel.ERROR) {
-            console.error(msg);
+            serverLogger.error(msg);
         }
     }
 }
 
-
-export const storage: Storage = new Sqlite3Storage('main.db');
+export const storage: IStorage = new Sqlite3Storage(path.resolve(process.env.DB_PATH, "main.db"));
 storage.init();

@@ -5,8 +5,8 @@ export function useInterval(callback: () => void, periodMs: number) {
 
     useEffect(() => {
         currentCallback.current = callback;
-    }, [callback])
-    
+    }, [callback]);
+
     useEffect(() => {
         const tick = () => currentCallback.current && currentCallback.current();
         const interval = setInterval(tick, periodMs);
