@@ -8,11 +8,13 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+      - ./db:${DB_PATH}
     ports: 
       - 15352:15352
     environment:
-      - PORT=${PORT}
+      - PORT=5000
       - VK_KEY=${VK_KEY}
       - APP_ID=${APP_ID}
+      - DB_PATH=${DB_PATH}
     tty: true
     command: ["npm", "run", "dev"] 
