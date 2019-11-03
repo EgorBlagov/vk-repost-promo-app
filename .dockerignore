@@ -8,6 +8,7 @@ docker-compose*
 .env
 Makefile
 db
+build
 README.md
 LICENSE
 .vscode

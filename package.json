@@ -11,7 +11,7 @@
     "start": "cd build && node app.js",
     "dev:client": "webpack-dev-server --https --config webpack.client.config.js --port 15352 --hot --host 0.0.0.0 --mode development",
     "dev:mobile": "webpack-dev-server --config webpack.client.config.js --port 15353 --hot --host 0.0.0.0 --mode development",
-    "dev:server": "concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
+    "dev:server": "npm run build:server && concurrently --names \"APP,SERVER\" \"cd build && nodemon app.js\" \"webpack --config webpack.server.config.js -w --mode development\"",
     "dev": "concurrently --names \"BACK,CLIENT\" -c \"bgMagenta.bold,bgGreen.bold\" \"npm run dev:server\" \"npm run dev:client\"",
     "dev:nohot": "concurrently --names \"APP,SERVER,CLIENT\" -c \"bgBlue.bold,bgMagenta.bold,bgGreen.bold\" \"cd build && nodemon app.js\" \"npx webpack --config webpack.server.config.js -w\" \"npx webpack --config webpack.client.config.js -w\"",
     "lint": "prettier --write src/**/*.{tsx,ts,css} && tslint --fix src/**/*.{ts,tsx}"
