@@ -2,7 +2,7 @@ import * as _ from "lodash";
 import { Methods } from "../common/api-declaration";
 import { IAdminGroupConfig, VkViewerRole } from "../common/types";
 import { RouterEx } from "./router-ex";
-import { vkApiAuthMiddleware, vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
+import { vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
 import { storage } from "./storage";
 
 export const apiRouter: RouterEx = new RouterEx("/api");
@@ -35,7 +35,6 @@ groupRouter.addApiRoute(Methods.GetGroupRequirement, async (req, res) => {
 });
 
 const userRouter: RouterEx = new RouterEx("/user", groupRouter);
-userRouter.addMiddleware(vkApiAuthMiddleware);
 userRouter.addApiRoute(Methods.GetUserPromocode, async (req, res) => {
     try {
         const promocode = await storage.getPromocode(req.ex.vkParams.vk_group_id);

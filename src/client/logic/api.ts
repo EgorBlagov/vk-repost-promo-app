@@ -8,7 +8,7 @@ import {
     RequestType,
     ResponseType,
 } from "../../common/api-declaration";
-import { vkApiAuthHeaderName, vkAuthHeaderName } from "../../common/security";
+import { vkAuthHeaderName } from "../../common/security";
 import {
     IAdminGroupConfig,
     IGroupRequirement,
@@ -197,7 +197,6 @@ class Api {
 
     private injectVkHeaders(r: Request): void {
         r.headers.append(vkAuthHeaderName, window.location.search);
-        r.headers.append(vkApiAuthHeaderName, this.accessToken);
     }
 
     private getUrl<T extends Methods>(methodType: T, queryParams: QueryParams<T>): string {
