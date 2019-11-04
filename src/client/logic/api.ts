@@ -16,6 +16,7 @@ import {
     IPromocode,
     IResponse,
     IUserStatus,
+    TRepostInfo,
 } from "../../common/types";
 import { toMsg } from "../../common/utils";
 import { isOk } from "../../common/utils";
@@ -114,8 +115,54 @@ class Api {
 
     public async getUserStatus(): Promise<IUserStatus> {
         try {
-            const result = await this.request(Methods.GetUserStatus);
-            return result;
+            const launchInfo = await this.getLaunchInfo();
+            const groupRequirement = await this.getGroupRequirement();
+            const wallPosts: any = await vkConnect.sendPromise("VKWebAppCallAPIMethod", {
+                method: "wall.get",
+                params: {
+                    owner_id: launchInfo.userId,
+                    count: 20,
+                    ...this.commonParams,
+                },
+            });
+
+            let repostInfo: TRepostInfo = { reposted: false };
+            if (isOk(wallPosts.response)) {
+                const postDates = _(wallPosts.response.items)
+                    .filter(x => x.copy_history !== undefined)
+                    .filter(x =>
+                        _.some(
+                            x.copy_history,
+                            cp => cp.owner_id === -launchInfo.groupId && cp.id === groupRequirement.postId,
+                        ),
+                    )
+                    .map(x => x.date)
+                    .value();
+
+                if (!_.isEmpty(postDates)) {
+                    repostInfo = { reposted: true, postDate: _.min(postDates) };
+                }
+            }
+
+            const isMemberResponse: any = await vkConnect.sendPromise("VKWebAppCallAPIMethod", {
+                method: "groups.isMember",
+                params: {
+                    user_id: launchInfo.userId,
+                    group_id: launchInfo.groupId,
+                    count: 20,
+                    ...this.commonParams,
+                },
+            });
+
+            let isMember: boolean = false;
+            if (isOk(isMemberResponse.response)) {
+                isMember = isMemberResponse.response === 1;
+            }
+
+            return {
+                member: isMember,
+                repost: repostInfo,
+            };
         } catch (error) {
             throw new Error(`Не удалось получить статус пользователя: ${toMsg(error)}`);
         }

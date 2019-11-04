@@ -6,7 +6,7 @@ import { Button, Cell, Div, Group, List, Panel, PanelHeader, PullToRefresh } fro
 import { TimeProcessor } from "../../../common/time-processor";
 import { IGroupRequirement, ILaunchParams, IUserStatus } from "../../../common/types";
 import { toMsg } from "../../../common/utils";
-import { isOk, safeGet } from "../../../common/utils";
+import { safeGet } from "../../../common/utils";
 import { api } from "../../logic/api";
 import { Panels } from "../../logic/navigation";
 import { AdminSettingsButton } from "./AdminSettingsButton";
@@ -28,37 +28,31 @@ export const Home = ({ id, go, launchInfo, notify, children }: IHomeProps) => {
     const [userStatus, setUserStatus] = useState<IUserStatus>(undefined);
     const [tokenReceived, setTokenReceived] = useState<boolean>(false);
 
-    const fetchGroupConfig = async () => {
+    const authorizeRoutine = async () => {
+        if (!api.hasToken) {
+            await api.obtainToken();
+        }
+
+        setTokenReceived(api.hasToken);
+    };
+
+    const tryAuthorize = () => {
+        authorizeRoutine().catch(err => `Не удалось получить доступ: ${toMsg(err)}`);
+    };
+
+    const onRefresh = async () => {
+        setPullFetching(true);
         try {
+            await authorizeRoutine();
+
             const isGroupConfigured: boolean = await api.isGroupConfigured();
             if (isGroupConfigured) {
                 const cfg = await api.getGroupRequirement();
                 setGroupRequirement(cfg);
-            }
-        } catch (error) {
-            notify(`Не удалось получить параметры: ${toMsg(error)}`, true);
-        }
-    };
-
-    const tryAuthorize = () => {
-        const call = async () => {
-            if (!api.hasToken) {
-                await api.obtainToken();
+            } else {
+                setGroupRequirement(undefined);
             }
 
-            setTokenReceived(api.hasToken);
-        };
-
-        call().catch(err => `Не удалось получить доступ: ${toMsg(err)}`);
-    };
-
-    const onRefresh = async () => {
-        if (!isOk(groupRequirement) || !isOk(launchInfo) || !tokenReceived) {
-            return;
-        }
-
-        setPullFetching(true);
-        try {
             const status = await api.getUserStatus();
             setUserStatus(status);
         } catch (err) {
@@ -69,15 +63,10 @@ export const Home = ({ id, go, launchInfo, notify, children }: IHomeProps) => {
     };
 
     useEffect(() => {
-        tryAuthorize();
-        fetchGroupConfig();
-    }, []);
-
-    useEffect(() => {
         window.addEventListener("focus", onRefresh);
         onRefresh();
         return () => window.removeEventListener("focus", onRefresh);
-    }, [groupRequirement, tokenReceived]);
+    }, []);
 
     const hasRepost =
         userStatus &&

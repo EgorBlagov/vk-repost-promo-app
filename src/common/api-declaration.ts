@@ -1,18 +1,10 @@
 import * as Joi from "@hapi/joi";
-import {
-    IAdminGroupConfig,
-    IGroupConfigured,
-    IGroupRequirement,
-    ILaunchParams,
-    IPromocode,
-    IUserStatus,
-} from "./types";
+import { IAdminGroupConfig, IGroupConfigured, IGroupRequirement, ILaunchParams, IPromocode } from "./types";
 
 export enum Methods {
     GetLaunchParams,
     IsGroupConfigured,
     GetGroupRequirement,
-    GetUserStatus,
     GetUserPromocode,
     AdminGetGroupConfig,
     AdminSetGroupConfig,
@@ -51,11 +43,6 @@ export interface IMethodDefinitionTypeMap {
         [MethodDefinitionTypes.RequestParams]: {};
         [MethodDefinitionTypes.ResponseType]: IGroupRequirement;
     };
-    [Methods.GetUserStatus]: {
-        [MethodDefinitionTypes.QueryParams]: {};
-        [MethodDefinitionTypes.RequestParams]: {};
-        [MethodDefinitionTypes.ResponseType]: IUserStatus;
-    };
     [Methods.GetUserPromocode]: {
         [MethodDefinitionTypes.QueryParams]: {};
         [MethodDefinitionTypes.RequestParams]: {};
@@ -86,11 +73,6 @@ export const MethodDefinitionValueMap = {
     },
     [Methods.GetGroupRequirement]: {
         [MethodDefinitionValues.Route]: "/api/group/requirement",
-        [MethodDefinitionValues.Type]: RequestType.GET,
-        [MethodDefinitionValues.QueryParamsSchema]: {},
-    },
-    [Methods.GetUserStatus]: {
-        [MethodDefinitionValues.Route]: "/api/group/user/status",
         [MethodDefinitionValues.Type]: RequestType.GET,
         [MethodDefinitionValues.QueryParamsSchema]: {},
     },
