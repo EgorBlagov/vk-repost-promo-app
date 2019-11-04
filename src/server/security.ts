@@ -89,6 +89,11 @@ export const vkAuthMiddleware = (req: Request, res: Response, next: NextFunction
         return;
     }
 
+    if (req.vkParams.vk_app_id !== Number(process.env.APP_ID)) {
+        sendError(res, "Configuration error: invalid app id");
+        return;
+    }
+
     next();
 };
 

@@ -40,5 +40,8 @@ module.exports = {
     ],
     watchOptions: {
         poll: 1000
-    }
+    },
+    plugins: [
+        new webpack.EnvironmentPlugin(['APP_ID'])
+    ]
 }

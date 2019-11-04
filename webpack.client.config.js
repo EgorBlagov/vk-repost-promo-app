@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
     mode: 'production',
@@ -48,5 +49,8 @@ module.exports = {
         proxy: {
             '/api': 'http://localhost:5000'
         }
-    }
+    },
+    plugins: [
+        new webpack.EnvironmentPlugin(['BASE_PATH', 'APP_ID'])
+    ]
 }

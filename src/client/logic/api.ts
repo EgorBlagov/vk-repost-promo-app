@@ -56,7 +56,10 @@ class Api {
     }
 
     public async obtainToken() {
-        const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", { app_id: 7153874, scope: "wall,groups" }); // TODO: unhardcode
+        const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", {
+            app_id: Number(process.env.APP_ID),
+            scope: "wall,groups",
+        }); // TODO: unhardcode
         this.accessToken = result.access_token;
     }
 
@@ -158,7 +161,7 @@ class Api {
                 url = url.replace(`:${key}`, (queryParams as any)[key]);
             });
 
-        return url;
+        return `${process.env.BASE_PATH}${url}`;
     }
 
     private getRequestInit<T extends Methods>(methodType: T, params: RequestParams<T>): RequestInit {
