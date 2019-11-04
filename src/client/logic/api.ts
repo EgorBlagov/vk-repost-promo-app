@@ -59,7 +59,7 @@ class Api {
         const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", {
             app_id: Number(process.env.APP_ID),
             scope: "wall,groups",
-        }); // TODO: unhardcode
+        });
         this.accessToken = result.access_token;
     }
 

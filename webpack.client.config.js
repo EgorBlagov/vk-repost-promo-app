@@ -18,6 +18,10 @@ module.exports = {
         title: 'Output Management',
         template: './src/client/index.html'
       }),
+      new webpack.EnvironmentPlugin({
+          'BASE_PATH': '',
+          'APP_ID': undefined
+        })
     ],
 
     module: {
@@ -49,8 +53,5 @@ module.exports = {
         proxy: {
             '/api': 'http://localhost:5000'
         }
-    },
-    plugins: [
-        new webpack.EnvironmentPlugin(['BASE_PATH', 'APP_ID'])
-    ]
+    }
 }
