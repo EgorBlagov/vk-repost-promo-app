@@ -1,16 +1,15 @@
 import * as _ from "lodash";
 import { Methods } from "../common/api-declaration";
 import { IAdminGroupConfig, VkViewerRole } from "../common/types";
-import { PromocodeProcessor } from "./promocode-processor";
 import { RouterEx } from "./router-ex";
-import { vkApiAuthMiddleware, vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
+import { vkAuthAdminOnlyMiddleware, vkFromGroupOnlyMiddleware } from "./security";
 import { storage } from "./storage";
-import { vkTool } from "./vk";
 
 export const apiRouter: RouterEx = new RouterEx("/api");
 apiRouter.addApiRoute(Methods.GetLaunchParams, (req, res) => {
     res.send({
         groupId: req.ex.vkParams.vk_group_id && req.ex.vkParams.vk_group_id,
+        userId: req.ex.vkParams.vk_user_id,
         isAdmin: req.ex.vkParams.vk_viewer_group_role === VkViewerRole.admin,
     });
 });
@@ -36,42 +35,10 @@ groupRouter.addApiRoute(Methods.GetGroupRequirement, async (req, res) => {
 });
 
 const userRouter: RouterEx = new RouterEx("/user", groupRouter);
-userRouter.addMiddleware(vkApiAuthMiddleware);
-userRouter.addApiRoute(Methods.GetUserStatus, async (req, res) => {
-    try {
-        const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
-        res.send({
-            member: await vkTool.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id),
-            repost: await vkTool.repostInfo(
-                req.ex.vkToken,
-                req.ex.vkParams.vk_user_id,
-                req.ex.vkParams.vk_group_id,
-                groupConfig.postId,
-            ),
-        });
-    } catch (err) {
-        res.error(err);
-    }
-});
-
 userRouter.addApiRoute(Methods.GetUserPromocode, async (req, res) => {
     try {
-        const groupConfig = await storage.getGroupRequirement(req.ex.vkParams.vk_group_id);
-        const repostInfo = await vkTool.repostInfo(
-            req.ex.vkToken,
-            req.ex.vkParams.vk_user_id,
-            req.ex.vkParams.vk_group_id,
-            groupConfig.postId,
-        );
-        const isMember = await vkTool.isMember(req.ex.vkToken, req.ex.vkParams.vk_user_id, req.ex.vkParams.vk_group_id);
-        if (PromocodeProcessor.canObtainPromocode(isMember, repostInfo, groupConfig.hoursToGet)) {
-            const promocode = await storage.getPromocode(req.ex.vkParams.vk_group_id);
-            res.send(promocode);
-            return;
-        } else {
-            res.error("User cannot obtain promocode");
-            return;
-        }
+        const promocode = await storage.getPromocode(req.ex.vkParams.vk_group_id);
+        res.send(promocode);
     } catch (err) {
         res.error(err);
     }

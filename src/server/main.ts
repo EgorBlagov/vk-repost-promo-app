@@ -13,12 +13,11 @@ const app: express.Application = express();
 const port: string = process.env.PORT || "5000";
 
 app.use(bodyParser.json());
-app.use(vkAuthMiddleware);
-
-apiRouter.mountToApp(app);
 
 if (process.env.NODE_ENV === "production") {
     app.use(express.static("client"));
 }
 
+app.use(vkAuthMiddleware);
+apiRouter.mountToApp(app);
 app.listen(port, () => serverLogger.info(`Listening on port ${port}`));

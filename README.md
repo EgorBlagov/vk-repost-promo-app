@@ -41,8 +41,10 @@ So please **do ping me**, you can raise an issue with recommendations, so I can 
 - Not exactly RESTfull API -- API endpoints should match some other patterns, but because of custom HTTP headers I use,
   I've came up with splitting into user/admin sections, and taking some parameters from headers itself.
 - Security - As I understand all things that are stored on Client can be faked by attackers, so if user have no valid
-  sign with parameters received from Vk he will not get access to admin endpoints, besides all validation of requirement
-  (repost and membership in community) are validated on server. Oh and I believe I've eliminated the possibility of SQL injection
+  sign with parameters received from Vk he will not get access to admin endpoints, and I believe I've eliminated the
+  possibility of SQL injection. Actually, to be honest, there is vulnerability, and it caused by limitations I face
+  in Vk API, I have a thoughts on how to workaround it, but it will make application much much more complicated,
+  besides, this is training project, and I've learn much things already.
 
 ## Getting Started
 

@@ -8,7 +8,7 @@ import {
     RequestType,
     ResponseType,
 } from "../../common/api-declaration";
-import { vkApiAuthHeaderName, vkAuthHeaderName } from "../../common/security";
+import { vkAuthHeaderName } from "../../common/security";
 import {
     IAdminGroupConfig,
     IGroupRequirement,
@@ -16,6 +16,7 @@ import {
     IPromocode,
     IResponse,
     IUserStatus,
+    TRepostInfo,
 } from "../../common/types";
 import { toMsg } from "../../common/utils";
 import { isOk } from "../../common/utils";
@@ -56,7 +57,10 @@ class Api {
     }
 
     public async obtainToken() {
-        const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", { app_id: 7153874, scope: "wall,groups" }); // TODO: unhardcode
+        const result = await vkConnect.sendPromise("VKWebAppGetAuthToken", {
+            app_id: Number(process.env.APP_ID),
+            scope: "wall,groups",
+        });
         this.accessToken = result.access_token;
     }
 
@@ -111,8 +115,54 @@ class Api {
 
     public async getUserStatus(): Promise<IUserStatus> {
         try {
-            const result = await this.request(Methods.GetUserStatus);
-            return result;
+            const launchInfo = await this.getLaunchInfo();
+            const groupRequirement = await this.getGroupRequirement();
+            const wallPosts: any = await vkConnect.sendPromise("VKWebAppCallAPIMethod", {
+                method: "wall.get",
+                params: {
+                    owner_id: launchInfo.userId,
+                    count: 20,
+                    ...this.commonParams,
+                },
+            });
+
+            let repostInfo: TRepostInfo = { reposted: false };
+            if (isOk(wallPosts.response)) {
+                const postDates = _(wallPosts.response.items)
+                    .filter(x => x.copy_history !== undefined)
+                    .filter(x =>
+                        _.some(
+                            x.copy_history,
+                            cp => cp.owner_id === -launchInfo.groupId && cp.id === groupRequirement.postId,
+                        ),
+                    )
+                    .map(x => x.date)
+                    .value();
+
+                if (!_.isEmpty(postDates)) {
+                    repostInfo = { reposted: true, postDate: _.min(postDates) };
+                }
+            }
+
+            const isMemberResponse: any = await vkConnect.sendPromise("VKWebAppCallAPIMethod", {
+                method: "groups.isMember",
+                params: {
+                    user_id: launchInfo.userId,
+                    group_id: launchInfo.groupId,
+                    count: 20,
+                    ...this.commonParams,
+                },
+            });
+
+            let isMember: boolean = false;
+            if (isOk(isMemberResponse.response)) {
+                isMember = isMemberResponse.response === 1;
+            }
+
+            return {
+                member: isMember,
+                repost: repostInfo,
+            };
         } catch (error) {
             throw new Error(`Не удалось получить статус пользователя: ${toMsg(error)}`);
         }
@@ -147,7 +197,6 @@ class Api {
 
     private injectVkHeaders(r: Request): void {
         r.headers.append(vkAuthHeaderName, window.location.search);
-        r.headers.append(vkApiAuthHeaderName, this.accessToken);
     }
 
     private getUrl<T extends Methods>(methodType: T, queryParams: QueryParams<T>): string {
@@ -158,7 +207,7 @@ class Api {
                 url = url.replace(`:${key}`, (queryParams as any)[key]);
             });
 
-        return url;
+        return `${process.env.BASE_PATH}${url}`;
     }
 
     private getRequestInit<T extends Methods>(methodType: T, params: RequestParams<T>): RequestInit {

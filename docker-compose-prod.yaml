@@ -5,13 +5,15 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+      args:
+        BASE_PATH: ${BASE_PATH}
+        APP_ID: ${APP_ID}
     volumes:
       - ./db:${DB_PATH}
     ports: 
-      - 15352:${PORT}
+      - ${EXPOSED_PORT}:${PORT}
     environment:
       - PORT=${PORT}
       - VK_KEY=${VK_KEY}
-      - APP_ID=${APP_ID}
       - DB_PATH=${DB_PATH}
     tty: true

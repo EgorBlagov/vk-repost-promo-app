@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
     mode: 'production',
@@ -17,6 +18,10 @@ module.exports = {
         title: 'Output Management',
         template: './src/client/index.html'
       }),
+      new webpack.EnvironmentPlugin({
+          'BASE_PATH': '',
+          'APP_ID': undefined
+        })
     ],
 
     module: {

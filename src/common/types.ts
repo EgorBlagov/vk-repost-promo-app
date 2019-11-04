@@ -1,5 +1,6 @@
 export interface ILaunchParams {
     groupId?: number;
+    userId: number;
     isAdmin: boolean;
 }
 

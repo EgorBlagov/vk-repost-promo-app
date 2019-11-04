@@ -4,10 +4,9 @@ import * as _ from "lodash";
 import * as qs from "querystring";
 
 import { NextFunction, Request, Response } from "express";
-import { vkApiAuthHeaderName, vkAuthHeaderName } from "../common/security";
+import { vkAuthHeaderName } from "../common/security";
 import { IVkParams, VkViewerRole } from "../common/types";
 import { toMsg } from "../common/utils";
-import { isOk } from "../common/utils";
 import { sendError } from "./utils";
 
 declare global {
@@ -15,7 +14,6 @@ declare global {
         // tslint:disable-next-line: interface-name
         interface Request {
             vkParams?: IVkParams;
-            vkToken?: string;
         }
     }
 }
@@ -89,16 +87,11 @@ export const vkAuthMiddleware = (req: Request, res: Response, next: NextFunction
         return;
     }
 
-    next();
-};
-
-export const vkApiAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
-    if (!isOk(req.get(vkApiAuthHeaderName))) {
-        sendError(res, "Authorization error: API token not specified", 401);
+    if (req.vkParams.vk_app_id !== Number(process.env.APP_ID)) {
+        sendError(res, "Configuration error: invalid app id");
         return;
     }
 
-    req.vkToken = req.get(vkApiAuthHeaderName);
     next();
 };
 
